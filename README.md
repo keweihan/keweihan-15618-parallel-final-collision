@@ -4,9 +4,8 @@
 We are going to explore parallelizing spatial grid structures such as a fixed spatial grid and quadtree to optimize collision detection using CUDA.
 
 # Background
-[TODO] Just an outline:
-1. We have
-2. 
+[TODO]
+
 # Challenge
 [TODO]
 1. Challenge in distributing workload evenlyt
