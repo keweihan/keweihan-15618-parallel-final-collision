@@ -1,5 +1,6 @@
 # Parallelization Schemes for Collision Detection
 **Team**: Kewei Han (keweihan), Jiya Zhang (jiyaz)
+
 **URL**: https://keweihan.github.io/keweihan-15618-parallel-final-collision/
 
 # Summary
