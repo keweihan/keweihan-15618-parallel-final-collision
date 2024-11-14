@@ -7,9 +7,7 @@
 We are going to explore parallelizing spatial grid structures such as a fixed spatial grid and quadtree to optimize collision detection computation using CUDA.
 
 # Background
-Our project focuses on enhancing a compute-intensive application for 2D collision detection among 15,000+ particles. Particles are assigned to a fixed-grid spatial structure, where each grid cell contains references to particles in that area. For each frame, the program currently checks sequentially for collisions within each cell abstracted as the following logic. We plan to parallelize the particle-to-cell assignment (updateGrid) with either per-grid or per-particle or both for parallelization strategy. 
-
-To simulate imbalanced workload, integrating a quadtree structure into our parallelized approach may improve performance, particularly in densely populated grid areas. The quadtree structure allows for hierarchical partitioning, reducing the number of collision checks necessary by only examining particles within relevant quadrants.
+Our project focuses on parallelizing a compute-intensive 2D collision detection application involving simulation of 15,000+ particles. In an existing implementation, a fixed-grid spatial structure is constructed every frame such that each grid cell contains references to particles in that area. Currently this process is done sequentially for each cell. We plan to parallelize the grid construction process with particle-to-cell assignment (updateGrid) by exploring per-grid or per-particle parallelization strategies. 
 
 ```C++
 // update grid with collider/entity references
@@ -30,6 +28,9 @@ for (int i = 0; i < colliderGrid.size(); ++i)
 }
 
 ```
+Another aspect and direction of our project will involve is optimizing the collision process itself by introducing   
+To simulate imbalanced workload, integrating a quadtree structure into our parallelized approach may improve performance, particularly in densely populated grid areas. The quadtree structure allows for hierarchical partitioning, reducing the number of collision checks necessary by only examining particles within relevant quadrants.
+
 
 # Challenge
 Collision detection is challenging to parallelize due to potential data access conflicts and uneven workload distribution across threads. We anticipate the following key issues:
