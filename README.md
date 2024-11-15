@@ -28,8 +28,9 @@ for (int i = 0; i < colliderGrid.size(); ++i)
 }
 
 ```
-Another aspect and direction of our project will involve is optimizing the collision process itself by introducing   
-To simulate imbalanced workload, integrating a quadtree structure into our parallelized approach may improve performance, particularly in densely populated grid areas. The quadtree structure allows for hierarchical partitioning, reducing the number of collision checks necessary by only examining particles within relevant quadrants.
+Another aspect and direction of our project will involve is implementing a quadtree structure in place of a fixed spatial grid and parallelizing its construction as well. Quadtrees are a way for maintaining a spatial strucutre such that each grid cell does not contain more than a set amount of entities, and if it will the tree will recursively split into more nodes to satisfy that constraint. 
+
+When simulating a scene with uneven entity distribution, integrating a quadtree structure into our parallelized approach may improve performance, particularly in densely populated grid areas. The quadtree structure allows for hierarchical partitioning, reducing the number of collision checks necessary by only examining particles within relevant quadrants.
 
 
 # Challenge
