@@ -5,10 +5,16 @@
 
 # Proposal
 ## Summary
-We are going to explore parallelizing spatial grid structures such as a fixed spatial grid and quadtree to optimize collision detection computation using CUDA.
+We are going to explore parallelizing construction spatial grid structures - a fixed spatial grid as well as quadtree to optimize collision detection computation using CUDA.
 
 ## Background
-Our project focuses on parallelizing a compute-intensive 2D collision detection application involving simulation of 15,000+ particles. In an existing implementation, a fixed-grid spatial structure is constructed every frame such that each grid cell contains references to particles in that area. Currently this construction process is done sequentially for each cell. We plan to parallelize the grid construction process with particle-to-cell assignment (updateGrid) by exploring per-grid or per-particle parallelization strategies. 
+Our project focuses on parallelizing a compute-intensive 2D collision detection application involving simulation of 15,000+ particles. In an existing implementation, a fixed-grid spatial structure is constructed every frame. In this spatial structure each grid cell represents an area in the 2D scene and is a container to references to particles in that area. 
+
+![FA604B35-8263-480C-8785-D32AC5C731B9](https://github.com/user-attachments/assets/86e3e9a5-7d4a-462c-b5a5-b26f15899953)
+
+Currently this construction process is done sequentially for each cell. We plan to parallelize the fixed-grid construction process involving particle-to-cell assignment (updateGrid) by exploring per-grid or per-particle parallelization strategies.
+
+Below gives pseudocode for the entire resolution process, showing the grid construction step as well as the collision resolution step. Our project would be focusing on parallelizing grid construction step only. 
 
 ```C++
 void ColliderGrid::updateGrid() {
@@ -38,12 +44,11 @@ void resolveCollisions(ColliderGrid& colliderGrid) {
  }
 }
 ```
-Another aspect and direction of our project will involve is implementing a quadtree structure in place of a fixed spatial grid and parallelizing its construction as well. Quadtrees are a way for maintaining a spatial strucutre such that each grid cell does not contain more than a set amount of entities, and if it will the tree will recursively split into more nodes to satisfy that constraint. 
+Another aspect our project will involve is implementing a quadtree structure in place of a fixed spatial grid and parallelizing its construction. Quadtrees are a way for maintaining a spatial strucutre such that each grid cell does not contain more than a set amount of entities, and if it will the tree will recursively split into more nodes to satisfy that constraint. 
+
+This gives performance benefits when simulating a scene with uneven entity distribution, using a quadtree structure in the collision scheme approach can improve performance for scenes with unevenly populated populated grid areas. The quadtree structure allows for hierarchical partitioning, reducing the number of collision checks necessary by only examining particles within relevant quadrants.
 
 ![D78939FC-28A1-4F30-98AF-7194858E3703](https://github.com/user-attachments/assets/60e0c373-51bf-45dc-9d7e-0ca33fbfa80f)
-
-When simulating a scene with uneven entity distribution, using a quadtree structure in the collision scheme approach can improve performance for scenes with unevenly populated populated grid areas. The quadtree structure allows for hierarchical partitioning, reducing the number of collision checks necessary by only examining particles within relevant quadrants.
-
 
 ## Challenge
 Collision detection can be challenging to parallelize due to potential data access conflicts and uneven workload distribution across threads. We anticipate the following key issues:
