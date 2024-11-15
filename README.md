@@ -11,23 +11,32 @@ We are going to explore parallelizing spatial grid structures such as a fixed sp
 Our project focuses on parallelizing a compute-intensive 2D collision detection application involving simulation of 15,000+ particles. In an existing implementation, a fixed-grid spatial structure is constructed every frame such that each grid cell contains references to particles in that area. Currently this construction process is done sequentially for each cell. We plan to parallelize the grid construction process with particle-to-cell assignment (updateGrid) by exploring per-grid or per-particle parallelization strategies. 
 
 ```C++
-// update grid with collider/entity references
-colliderGrid.updateGrid(); 
+void ColliderGrid::updateGrid() {
+ for (int i = 0; i < entities.size(); ++i) {
+   // Determine grid cells entity overlaps with
+   // Insert entity into respective cell
+ }
 
-// Iterate through every cell
-for (int i = 0; i < colliderGrid.size(); ++i)
-{
- // Only brute force check colliders contained within each cell
- for (auto& colliderA : colliderGrid.getCellContents(i))
+}
+
+void resolveCollisions(ColliderGrid& colliderGrid) {
+ // update grid with collider/entity references
+ colliderGrid.updateGrid();
+ 
+ // Iterate through every cell
+ for (int i = 0; i < colliderGrid.size(); ++i)
  {
-  for (auto& colliderB : colliderGrid.getCellContents(i))
+  // Only brute force check colliders contained within each cell
+  for (auto& colliderA : colliderGrid.getCellContents(i))
   {
-   if (colliderA == colliderB) continue;
-   resolveCollision(colliderA, colliderB);
+   for (auto& colliderB : colliderGrid.getCellContents(i))
+   {
+    if (colliderA == colliderB) continue;
+    resolveCollision(colliderA, colliderB);
+   }
   }
  }
 }
-
 ```
 Another aspect and direction of our project will involve is implementing a quadtree structure in place of a fixed spatial grid and parallelizing its construction as well. Quadtrees are a way for maintaining a spatial strucutre such that each grid cell does not contain more than a set amount of entities, and if it will the tree will recursively split into more nodes to satisfy that constraint. 
 
