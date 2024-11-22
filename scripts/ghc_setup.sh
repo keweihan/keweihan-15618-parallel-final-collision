@@ -4,7 +4,7 @@
 pip install conan
 
 CONFIG_FILE="$HOME/.bashrc"  
-LINE_TO_ADD='export PATH=$HOME/.local/bin/conan:$PATH'
+LINE_TO_ADD='export PATH=$HOME/.local/bin:$PATH'
 
 # Check if the line is already in the file
 if ! grep -Fxq "$LINE_TO_ADD" "$CONFIG_FILE"; then
@@ -14,8 +14,7 @@ else
   echo "Line already exists in $CONFIG_FILE"
 fi
 
-export PATH=$HOME/.local/bin/conan:$PATH
-
+export PATH=$HOME/.local/bin:$PATH
 
 conan profile detect
 conan install --requires=imgui/1.90.6-docking -g CMakeDeps -g CMakeToolchain --build=missing --output-folder=build/Release/generators -s build_type=Release
