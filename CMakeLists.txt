@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(SimpleECS)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}")
-
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -24,7 +19,7 @@ endif()
 
 # Include Conan dependencies
 find_package(Boost REQUIRED)
-find_package(SDL2 REQUIRED)
+find_package(sdl REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(imgui REQUIRED CONFIG)
