@@ -11,7 +11,7 @@ if ! grep -Fxq "$LINE_TO_ADD" "$CONFIG_FILE"; then
   echo "$LINE_TO_ADD" >> "$CONFIG_FILE"
   echo "Added line to $CONFIG_FILE"
 else
-  echo "Line already exists in $CONFIG_FILE"
+  echo "Line $LINE_TO_ADD already exists in $CONFIG_FILE"
 fi
 
 export PATH=$HOME/.local/bin:$PATH
@@ -29,7 +29,18 @@ if ! grep -Fxq "$LINE_TO_ADD" "$CONFIG_FILE"; then
   echo "$LINE_TO_ADD" >> "$CONFIG_FILE"
   echo "Added line to $CONFIG_FILE"
 else
-  echo "Line already exists in $CONFIG_FILE"
+  echo "Line $LINE_TO_ADD already exists in $CONFIG_FILE"
 fi
 
 export PATH=/usr/local/cuda-11.7/bin:${PATH}
+
+
+# ------------------INSTALL ------------------- #
+LINE_TO_ADD="source $HOME/.bashrc"
+
+if ! grep -Fxq "$LINE_TO_ADD" "$HOME/.bash_profile"; then
+  echo "$LINE_TO_ADD" >> "$CONFIG_FILE"
+  echo "Added line to $CONFIG_FILE"
+else
+  echo "Line $LINE_TO_ADD already exists in $CONFIG_FILE"
+fi
