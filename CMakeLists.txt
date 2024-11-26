@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(SimpleECS)
 
+# GHC specific - only use custom finders not already found on GHC
+find_package(SDL2_mixer CONFIG QUIET)
+if(NOT SDL2_mixer_FOUND)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+    find_package(SDL2_mixer REQUIRED)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -19,7 +26,10 @@ endif()
 
 # Include Conan dependencies
 find_package(Boost REQUIRED)
-find_package(sdl REQUIRED)
+find_package(SDL2 REQUIRED QUIET)
+if (NOT SDL2_FOUND) # use conan otherwise. 
+    find_package(sdl REQUIRED)
+endif()
 find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(imgui REQUIRED CONFIG)
