@@ -3,7 +3,69 @@
 
 **URL**: https://keweihan.github.io/keweihan-15618-parallel-final-collision/
 
-# Proposal
+
+# Milestone Report (12/3/24)
+In order to parallelize our workload, we decided to modify our schedule. Instead of working on fixed-grid cells and then on quadtree, we decided to split work both are worked on at the same time. As a result we have an updated schedule found at the bottom of the report and our progress thus far may differ from the original schedule. 
+
+
+## Summary
+Our main accomplishments so far are 
+1. Port an existing sequential collision simulator project to CMake
+2. Begin developing quadtree code
+3. Identify future tasks and determine feasibility 
+
+In porting, we ported an existing Visual Studio project to instead use CMake so it can be ran and compiled on the GHC clusters with stub CUDA code. This is needed in order for both of us to be able to develop, debug and conduct tests with a collision program. It also involved modifying the project so it can generate metrics in a headless manner (i.e. no display, only shell output). This turned out to be a non-trivial process but we managed to arrive at a point where we have a starter repository with a sequential collison program that can be compiled with CUDA code, ran and debugged on GHC. 
+
+We also have begun looking into and developed skeleton code for a quadtree implementation that would work in the context of this project... 
+
+TODO: Quadtree update
+
+
+## Project future
+Although our schedule has shifted we believe we are still on track to meet our basic targeted goals. In understanding our starting code we determined that we only need a single CUDA implementation given that we standardize the output of the quadtree and static grid so they can be fed into the same device logic. We think this is feasible and doable within the coming two weeks especially if we efficiently split the work. 
+
+
+## Poster Session
+The project is also setup such that it can run locally on one of our personal laptops with an NVIDIA GPU. This means we can do a visual demonstration of our project during the poster session. Below is a screenshot of the ported program and would be part of our demonstration.
+
+![Demo](demo.png)
+
+The project is also set up in a way to easily create new scenes with different workload distributions. We can have multiple instances running with different scenes and implementations to visually show the results in addition to data. 
+
+## Updated Goals
+1. Consistent interface to cuda device code
+2. Cuda device code to parallelize collision resolution 
+3. Quadtree implementation
+4. Quadtree interface with cuda device code (parallelized collision resolution)
+5. Static grid interface with cuda device code (parallelized collision resolution)
+
+Our nice to haves remain as follows, although it is less likely they would be accomplished unless we decide to explore OpenMP. 
+1. Parallelize grid construction (quadtree, collision)
+
+
+## Updated Schedule
+**November 17th - 23th** 
+
+Finalize research on spatial grid and quadtree structures. Begin with CUDA-based parallelization of the fixed-grid based a sequential baseline version, using a per-grid approach for balanced workload scenarios.
+
+**November 24th - 30th** 
+
+Establish skeleton code and structure for quadtrees and setup project to be compilable and runnable on GHC for development. Setup CUDA 
+
+**December 1th  -  7th**
+
+Implement a sequential quadtree to handle imbalanced particle distributions. 
+Develop interface to cuda device code
+Static grid interface with cuda device code 
+
+
+**December 8th  - 15th**
+
+Quadtree interace with cuda device code
+Prepare demo visualizations, speedup graphs, and project documentation.
+
+
+# Project Proposal (11/23/24)
 ## Summary
 We are going to explore parallelizing collision detection schemes using CUDA.
 
