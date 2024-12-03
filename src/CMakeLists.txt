@@ -4,21 +4,19 @@
 file(GLOB_RECURSE SRC_FILES
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/src/*.h
+    ${CMAKE_SOURCE_DIR}/src/*.cu
 )
 
 # Create SimpleECS DLL
 add_library(SimpleECS SHARED ${SRC_FILES})
+
+set_target_properties(SimpleECS PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 # Add DLL export definitions
 target_compile_definitions(SimpleECS 
     PRIVATE SIMPLEECS_EXPORTS
     PUBLIC SIMPLEECS_DLL
 )
-
-# Configure RTTI
-if(MSVC)
-    target_compile_options(SimpleECS PRIVATE /GR)
-endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wno-narrowing)
@@ -27,6 +25,7 @@ endif()
 # Set properties
 set_target_properties(SimpleECS PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS ON
+    CUDA_SEPARABLE_COMPILATION ON
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
@@ -66,4 +65,5 @@ target_link_libraries(SimpleECS
         # SDL2_image::SDL2_image // Not a dependency
         Boost::boost
         ${CMAKE_DL_LIBS}
+        CUDA::cudart
 )

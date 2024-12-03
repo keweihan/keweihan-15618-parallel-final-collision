@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <iostream>
+#include <cuda_runtime.h>
 
 using namespace SimpleECS;
 using namespace UtilSimpleECS;
@@ -40,6 +41,8 @@ inline void _invokeCollision(Collision& collision, Collider* a, Collider* b)
 	}
 }
 
+extern "C" void call_gpu_function();
+
 void SimpleECS::ColliderSystem::invokeCollisions()
 {
 	colliderGrid.updateGrid();
@@ -68,6 +71,14 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
 	}
 
+	// --------------------- CUDA --------------------- //
+	int deviceCount;
+	cudaGetDeviceCount(&deviceCount);
+    std::cout << deviceCount << std::endl;
+	call_gpu_function();
+	// ---------------------- ENDCUDA ---------------------- //
+
+	// TODO 15618: :parallelize this
 	// Invoke onCollide of colliding entity components
 	for (const auto& collisionPair : potentialPairs)
 	{

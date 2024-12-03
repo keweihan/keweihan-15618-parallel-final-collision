@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-project(SimpleECS)
+project(SimpleECS LANGUAGES CXX CUDA)
+set(CMAKE_CUDA_ARCHITECTURES "60;70;80")
 
 # GHC specific - only use custom finders not already found on GHC
 find_package(SDL2_mixer CONFIG QUIET)
@@ -33,6 +34,7 @@ endif()
 find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(imgui REQUIRED CONFIG)
+find_package(CUDAToolkit REQUIRED)
 
 # Create interface library for headers
 add_library(SimpleECS_Headers INTERFACE)
