@@ -16,9 +16,11 @@ Our main accomplishments so far are
 
 In porting, we ported an existing Visual Studio project to instead use CMake so it can be ran and compiled on the GHC clusters with stub CUDA code. This is needed in order for both of us to be able to develop, debug and conduct tests with a collision program. It also involved modifying the project so it can generate metrics in a headless manner (i.e. no display, only shell output). This turned out to be a non-trivial process but we managed to arrive at a point where we have a starter repository with a sequential collison program that can be compiled with CUDA code, ran and debugged on GHC. 
 
-We also have begun looking into and developed skeleton code for a quadtree implementation that would work in the context of this project... 
+We also have begun looking into and developed skeleton code for a quadtree implementation for our collision detection system. Building upon the existing codebase, we have designed the scope and interface of a new Quadtree class along with a QuadtreeNode class to effectively partition the 2D space and handle imbalanced distributions of colliders. The following three key major components are still under implementation:
 
-TODO: Quadtree update
+1. QuadtreeNode: This class will represent each node in the quadtree to insert colliders, subdivide nodes, and retrieve potential collision candidates. Each node maintains a list of colliders and has pointers to its child nodes.
+2. Quadtree: This class will manage the root node of the quadtree and provides high-level methods to insert colliders, clear the tree, and retrieve potential collisions for a given collider.
+3. Integration with ColliderSystem: We are in progress modifying the ColliderSystem class to use the quadtree for spatial partitioning. Colliders are inserted into the quadtree each frame, and potential collisions are retrieved efficiently by querying the quadtree. We will be providing a balanced workload of colliders for downstream CUDA implementation.
 
 
 ## Project future
