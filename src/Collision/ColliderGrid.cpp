@@ -133,3 +133,8 @@ void SimpleECS::ColliderGrid::getCellBounds(Collider::AABB& output, const int in
 	output.yMax = GameRenderer::SCREEN_HEIGHT - row * cellHeight;
 	output.yMin = output.yMax - cellHeight;
 }
+
+std::vector<ColliderCell> *SimpleECS::ColliderGrid::getRawGrid()
+{
+    return &grid;
+}

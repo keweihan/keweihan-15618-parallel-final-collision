@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <iostream>
+#include "CudaResolve.h"
 #include <cuda_runtime.h>
 
 using namespace SimpleECS;
@@ -46,43 +47,43 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	colliderGrid.updateGrid();
 	Collision collision = {};
 
-	// Set of potential collision pairs
-	std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
-		potentialPairs;
+	// // Set of potential collision pairs
+	// std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
+	// 	potentialPairs;
 
-	// Populate with potential pairs
-	try {
+	// // Populate with potential pairs
+	// try {
 	
-		for (int i = 0; i < colliderGrid.size(); ++i)
-		{
-			auto cell = *colliderGrid.getCellContents(i);
-			for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
-			{
-				for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
-				{
-					potentialPairs.insert({ *iterA, *iterB });
-				}
-			}
-		}
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
-	}
+	// 	for (int i = 0; i < colliderGrid.size(); ++i)
+	// 	{
+	// 		auto cell = *colliderGrid.getCellContents(i);
+	// 		for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
+	// 		{
+	// 			for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
+	// 			{
+	// 				potentialPairs.insert({ *iterA, *iterB });
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// catch (const std::exception& e) {
+	// 	std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
+	// }
 
 	// --------------------- CUDA --------------------- //
-	int deviceCount;
-	cudaGetDeviceCount(&deviceCount);
-    std::cout << deviceCount << std::endl;
+	CudaResolve resolver(colliderGrid.getRawGrid());
+	resolver.flattenCopyToDevice();
+	// resolver.launchKernel(1);
 	// ---------------------- ENDCUDA ---------------------- //
 
 	// TODO 15618: :parallelize this
 	// Invoke onCollide of colliding entity components
-	for (const auto& collisionPair : potentialPairs)
-	{
-		// Invoke from both sides
-		_invokeCollision(collision, collisionPair.first, collisionPair.second);
-		_invokeCollision(collision, collisionPair.second, collisionPair.first);
-	}
+	// for (const auto& collisionPair : potentialPairs)
+	// {
+	// 	// Invoke from both sides
+	// 	_invokeCollision(collision, collisionPair.first, collisionPair.second);
+	// 	_invokeCollision(collision, collisionPair.second, collisionPair.first);
+	// }
 }
 
 bool SimpleECS::ColliderSystem::getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b)

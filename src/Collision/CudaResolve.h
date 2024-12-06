@@ -11,6 +11,7 @@
 
 // Plain Old Data (POD) structure
 struct ColliderEntity {
+    ColliderEntity() = default;
     ColliderEntity(int eid) {}; // stub - 
     ColliderEntity(SimpleECS::BoxCollider* col);
     // entity id
@@ -43,6 +44,7 @@ private:
     ColliderEntity* d_flattenedData = nullptr;
     int* d_lengths = nullptr;
     int* d_offsets = nullptr;
+    int numCells = 0;
 
     /// @brief Helper function to allocate and copy data
     void allocateAndCopyToDevice(const std::vector<ColliderEntity>& flattenedData, 
