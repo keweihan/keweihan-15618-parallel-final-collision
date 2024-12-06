@@ -41,8 +41,6 @@ inline void _invokeCollision(Collision& collision, Collider* a, Collider* b)
 	}
 }
 
-extern "C" void call_gpu_function();
-
 void SimpleECS::ColliderSystem::invokeCollisions()
 {
 	colliderGrid.updateGrid();
@@ -75,7 +73,6 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	int deviceCount;
 	cudaGetDeviceCount(&deviceCount);
     std::cout << deviceCount << std::endl;
-	call_gpu_function();
 	// ---------------------- ENDCUDA ---------------------- //
 
 	// TODO 15618: :parallelize this
