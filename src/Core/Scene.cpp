@@ -1,6 +1,7 @@
 #include "Core/Entity.h"
 #include "Core/Scene.h"
 #include "Core/Component.h"
+#include "Physics/PhysicsBody.h"
 #include <stdexcept>
 
 using namespace SimpleECS;
@@ -17,6 +18,7 @@ Entity* Scene::createEntity()
 		entities[created->id] = created;
 	}
 	created->transform = addComponent<Transform>(created->id);
+	created->phys = addComponent<PhysicsBody>(created->id);
 	return created;
 }
 

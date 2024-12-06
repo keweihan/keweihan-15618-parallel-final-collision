@@ -15,6 +15,7 @@ namespace SimpleECS
 		PhysicsBody() : velocity() {}
 
 		double mass = 1;
+		bool is_static = false;
 
 		Vector velocity;
 		Vector acceleration;

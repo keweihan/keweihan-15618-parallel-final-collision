@@ -153,15 +153,14 @@ Entity* createBall(const int& x, const int &y)
 	Entity* newBall = mainScene->createEntity("ball");
 	newBall->addComponent<RectangleRenderer>(SIDE_LENGTH, SIDE_LENGTH, Color(102, 102, 102, 102));
 	newBall->addComponent<BoxCollider>(SIDE_LENGTH, SIDE_LENGTH);
-	Handle<PhysicsBody> physics = newBall->addComponent<PhysicsBody>();
 
 	// Set position
 	newBall->transform->position.x = x;
 	newBall->transform->position.y = y;
 
 	// Randomize direction and speed
-	physics->velocity.x = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
-	physics->velocity.y = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
+	newBall->phys->velocity.x = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
+	newBall->phys->velocity.y = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
 
 	return newBall;
 }
@@ -171,6 +170,8 @@ Entity* createFloorCeilingWall()
 {
 	Entity* wall = mainScene->createEntity();
 	wall->addComponent<BoxCollider>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS);
+	wall->phys->is_static = true;
+	wall->phys->mass = 100000;
 	return wall;
 }
 
@@ -179,6 +180,8 @@ Entity* createSideWalls()
 {
 	Entity* wall = mainScene->createEntity();
 	wall->addComponent<BoxCollider>(WALL_THICKNESS, SCREEN_HEIGHT + WALL_THICKNESS);
+	wall->phys->is_static = true;
+	wall->phys->mass = 100000;
 	return wall;
 }
 

@@ -27,6 +27,10 @@ namespace SimpleECS
 		Scene() : backgroundColor(Color(255,255,255,255)) {};
 		Scene(Color backgrundColor) : backgroundColor(backgrundColor) {};
 		~Scene();
+
+		// 15618 : get entity ptr based on eid
+		SIMPLEECS_API Entity* getEntity(int eid) { return entities[eid]; }
+		
 		/**
 		* Add Entity to this scene.
 		* 

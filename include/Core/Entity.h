@@ -9,10 +9,12 @@
 
 #include "SimpleECSAPI.h"
 
+
 namespace SimpleECS
 {	
 	template <typename T>
 	class Handle;
+	class PhysicsBody;
 
 	/**
 	An object/actor inside scenes. Has a container of components which dictate entity behavior.
@@ -51,6 +53,11 @@ namespace SimpleECS
 		* TODO: redo...
 		*/
 		Handle<Transform> transform;
+
+		/**
+		* 15618 only: Entity physics handler cached
+		*/
+		Handle<PhysicsBody> phys;
 
 		/**
 		* Add a component to this entity of type T

@@ -70,20 +70,23 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// 	std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
 	// }
 
-	// --------------------- CUDA --------------------- //
-	CudaResolve resolver(colliderGrid.getRawGrid());
-	resolver.flattenCopyToDevice();
-	// resolver.launchKernel(1);
-	// ---------------------- ENDCUDA ---------------------- //
 
-	// TODO 15618: :parallelize this
-	// Invoke onCollide of colliding entity components
+
+	// //TODO 15618: :parallelize this
+	// //Invoke onCollide of colliding entity components
 	// for (const auto& collisionPair : potentialPairs)
 	// {
 	// 	// Invoke from both sides
 	// 	_invokeCollision(collision, collisionPair.first, collisionPair.second);
 	// 	_invokeCollision(collision, collisionPair.second, collisionPair.first);
 	// }
+
+
+	// --------------------- CUDA --------------------- //
+	CudaResolve resolver(colliderGrid.getRawGrid());
+	resolver.flattenCopyToDevice();
+	resolver.launchKernel(1);
+	// ---------------------- ENDCUDA ---------------------- //
 }
 
 bool SimpleECS::ColliderSystem::getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b)
