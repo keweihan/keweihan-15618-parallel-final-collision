@@ -14,14 +14,24 @@ struct ColliderEntity {
     ColliderEntity() = default;
     ColliderEntity(int eid) {}; // stub - 
     ColliderEntity(SimpleECS::BoxCollider* col);
+
+    friend std::ostream& operator<<(std::ostream& os, const ColliderEntity& entity);
+
     // entity id
     int eid;
+    double mass;
 
     // phys params
     double x_vel, y_vel, x_pos, y_pos;
 
     // aabb
-    double x_min, x_max, y_min, y_max;    
+    double x_min, x_max, y_min, y_max;
+
+    // is it a static physics object (i.e. doesn't move)
+    bool is_static;
+
+    // has this entity changed after entering->leaving cuda kernel?
+    bool is_dirty;
 };
 
 // Complex Class

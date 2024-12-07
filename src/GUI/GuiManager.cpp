@@ -90,6 +90,8 @@ void GuiManager::update()
 			ImGui::BeginChild("EntityNameWrapper", ImVec2(0, ImGui::GetTextLineHeightWithSpacing() + 10), true, ImGuiWindowFlags_NoScrollbar);
 			ImGui::Text(selectedEntity->tag.c_str());
 			ImGui::EndChild();
+
+			ImGui::Text(std::to_string(selectedEntity->id).c_str());
 		}
 
 		ImGui::Separator();

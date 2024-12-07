@@ -61,7 +61,10 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// 		{
 	// 			for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
 	// 			{
-	// 				potentialPairs.insert({ *iterA, *iterB });
+	// 				//potentialPairs.insert({ *iterA, *iterB });
+
+	// 				_invokeCollision(collision, (*iterA), (*iterB));
+	// 				_invokeCollision(collision, (*iterB), (*iterA));
 	// 			}
 	// 		}
 	// 	}
@@ -72,8 +75,8 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 
 
 
-	// //TODO 15618: :parallelize this
-	// //Invoke onCollide of colliding entity components
+	//TODO 15618: :parallelize this
+	//Invoke onCollide of colliding entity components
 	// for (const auto& collisionPair : potentialPairs)
 	// {
 	// 	// Invoke from both sides

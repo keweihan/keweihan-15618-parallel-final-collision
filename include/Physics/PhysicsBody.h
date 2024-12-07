@@ -29,8 +29,7 @@ namespace SimpleECS
 		void onCollide(const Collision& collide) override;
 
 		void lateUpdate() override;
-	
-	private:
+
 		Vector futureVelocity;
 	};
 }
