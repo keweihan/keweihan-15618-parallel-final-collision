@@ -59,7 +59,7 @@ void CudaResolve::flattenCopyToDevice() {
     std::vector<int> lengths; // sizes of cells in flattened
     std::vector<int> offsets; // starts of cells in flattened
 
-    flattenedData.reserve(_cells->size());
+    flattenedData.reserve(_cells->size() * 4);
     lengths.reserve(_cells->size());
     offsets.reserve(_cells->size());
     

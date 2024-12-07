@@ -51,7 +51,7 @@ namespace SimpleECS
 		bool getCollisionInfo(Collision& collide);
 
 	private:
-		ColliderSystem() : colliderGrid(ColliderGrid(8, 8)) {}
+		ColliderSystem() : colliderGrid(ColliderGrid(16, 16)) {}
 
 		/*
 		* Maintains list of all active colliders in scene. 

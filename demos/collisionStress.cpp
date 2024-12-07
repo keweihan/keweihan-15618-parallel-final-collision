@@ -15,16 +15,16 @@ using namespace std;
 using namespace SimpleECS;
 
 // Run parameters
-const bool RENDER_WINDOW = true;
+const bool RENDER_WINDOW = false;
 
 // Environment parameters
 const int SCREEN_HEIGHT		= 1280;
-const int SCREEN_WIDTH		= 1600;
+const int SCREEN_WIDTH		= 1920;
 const int WALL_THICKNESS	= 100;
 const int WALL_INSET = 20;
 
 // Ball parameters
-const int NUM_BALLS		= 50000;
+const int NUM_BALLS		= 60;
 const int MAX_SPEED		= 5;
 const int MIN_SPEED		= 2;
 const int SIDE_LENGTH	= 3;
