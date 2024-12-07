@@ -66,7 +66,7 @@ void CudaResolve::flattenCopyToDevice() {
     int offset = 0;
     int _numCells = 0;
     for (ColliderCell& cell : *_cells) {
-        if(cell.size() > 0)
+        if(cell.size() > 1)
         {
             lengths.push_back(cell.size());
             offsets.push_back(offset);
@@ -75,6 +75,7 @@ void CudaResolve::flattenCopyToDevice() {
                 BoxCollider* box = static_cast<BoxCollider*>(col);
                 ColliderEntity flatCollider(box);
                 flattenedData.push_back(flatCollider);
+                num_references++;
             }
             offset += cell.size();
         }
@@ -239,13 +240,6 @@ __device__ void resolveCollide(CudaCollision collide, ColliderEntity* a, Collide
     double shift_y = collide.normal_y * collide.penetration * massCoef/2;
 	a->x_pos += shift_x;
 	a->y_pos += shift_y;
-
-    // if(a->eid == 4) {
-    //     printf("4 collided with %d with collision normal of (%f, %f) and pen %f\n", b->eid, collide.normal_x, collide.normal_y, collide.penetration);
-    //     printf("4 is shifting: (%f, %f)\n", shift_x, shift_y);
-    // }
-
-    //printf("%d is shifting x %f, y %f, from a collision with %d. End x y is (%f, %f)\n", a->eid, shift_x, shift_y, b->eid, a->x_pos, a->y_pos);
 	
     // Calculate new velocity (mass velocity 2D calculation)
 	// Adapted from https://en.wikipedia.org/wiki/Elastic_collision#Two-Dimensional_Collision_With_Two_Moving_Objects
@@ -279,13 +273,9 @@ __global__ void kernel(ColliderEntity* d_flattenedData, int* d_lengths, int* d_o
             for (int j = i + 1; j < length; ++j) {
                 ColliderEntity* entity_b = &d_flattenedData[offset + j];
                 
-                // Resolve physics here
+                // Resolve physics
                 CudaCollision colA = getCollisionBoxBox(*entity_a, *entity_b);
                 CudaCollision colB = getCollisionBoxBox(*entity_b, *entity_a);
-                // if(entity_a->eid == 3) {
-                //     printf("(outer) 3 collided with %d with collision normal of (%d, %d) and pen %f\n", entity_b->eid, col.normal_x, col.normal_y, col.penetration);
-                // }
-
                 resolveCollide(colA, entity_a, entity_b);
                 resolveCollide(colB, entity_b, entity_a);
             }
@@ -302,8 +292,8 @@ void CudaResolve::launchKernel(int numThreads) {
     cudaDeviceSynchronize();
 
     // Copy results back to host and apply to entities
-    std::vector<ColliderEntity> host_flattenedData(numCells);
-    cudaMemcpy(host_flattenedData.data(), d_flattenedData, numCells * sizeof(ColliderEntity), cudaMemcpyDeviceToHost);
+    std::vector<ColliderEntity> host_flattenedData(num_references);
+    cudaMemcpy(host_flattenedData.data(), d_flattenedData, num_references * sizeof(ColliderEntity), cudaMemcpyDeviceToHost);
     
     Scene* currScene = Game::getInstance().getCurrentScene();
 

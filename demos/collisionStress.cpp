@@ -18,16 +18,16 @@ using namespace SimpleECS;
 const bool RENDER_WINDOW = true;
 
 // Environment parameters
-const int SCREEN_HEIGHT		= 720;
-const int SCREEN_WIDTH		= 1280;
+const int SCREEN_HEIGHT		= 1280;
+const int SCREEN_WIDTH		= 1600;
 const int WALL_THICKNESS	= 100;
 const int WALL_INSET = 20;
 
 // Ball parameters
-const int NUM_BALLS		= 1000;
-const int MAX_SPEED		= 100;
-const int MIN_SPEED		= 90;
-const int SIDE_LENGTH	= 9;
+const int NUM_BALLS		= 50000;
+const int MAX_SPEED		= 5;
+const int MIN_SPEED		= 2;
+const int SIDE_LENGTH	= 3;
 const int RAND_SEED		= 42;
 
 

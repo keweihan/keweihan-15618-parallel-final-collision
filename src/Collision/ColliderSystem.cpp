@@ -47,7 +47,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	colliderGrid.updateGrid();
 	Collision collision = {};
 
-	// // Set of potential collision pairs
+	// Set of potential collision pairs
 	// std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
 	// 	potentialPairs;
 
@@ -75,8 +75,8 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 
 
 
-	//TODO 15618: :parallelize this
-	//Invoke onCollide of colliding entity components
+	// // TODO 15618: :parallelize this
+	// // Invoke onCollide of colliding entity components
 	// for (const auto& collisionPair : potentialPairs)
 	// {
 	// 	// Invoke from both sides
@@ -88,7 +88,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// --------------------- CUDA --------------------- //
 	CudaResolve resolver(colliderGrid.getRawGrid());
 	resolver.flattenCopyToDevice();
-	resolver.launchKernel(1);
+	resolver.launchKernel(10);
 	// ---------------------- ENDCUDA ---------------------- //
 }
 

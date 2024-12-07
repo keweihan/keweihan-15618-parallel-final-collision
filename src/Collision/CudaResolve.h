@@ -18,7 +18,6 @@ struct ColliderEntity {
     friend std::ostream& operator<<(std::ostream& os, const ColliderEntity& entity);
 
     // entity id
-    int eid;
     double mass;
 
     // phys params
@@ -30,6 +29,7 @@ struct ColliderEntity {
 
     // w/h
     int w, h;
+    int eid;
 
     // is it a static physics object (i.e. doesn't move)
     bool is_static;
@@ -59,6 +59,8 @@ private:
     int* d_lengths = nullptr;
     int* d_offsets = nullptr;
     int numCells = 0;
+
+    int num_references = 0;
 
     /// @brief Helper function to allocate and copy data
     void allocateAndCopyToDevice(const std::vector<ColliderEntity>& flattenedData, 
