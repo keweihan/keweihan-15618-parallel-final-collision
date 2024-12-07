@@ -15,18 +15,19 @@ using namespace std;
 using namespace SimpleECS;
 
 // Run parameters
-const bool RENDER_WINDOW = false;
+const bool RENDER_WINDOW = true;
 
 // Environment parameters
 const int SCREEN_HEIGHT		= 720;
 const int SCREEN_WIDTH		= 1280;
-const int WALL_THICKNESS	= 50;
+const int WALL_THICKNESS	= 100;
+const int WALL_INSET = 20;
 
 // Ball parameters
-const int NUM_BALLS		= 13400;
-const int MAX_SPEED		= 25;
-const int MIN_SPEED		= 5;
-const int SIDE_LENGTH	= 3;
+const int NUM_BALLS		= 1000;
+const int MAX_SPEED		= 100;
+const int MIN_SPEED		= 90;
+const int SIDE_LENGTH	= 9;
 const int RAND_SEED		= 42;
 
 
@@ -170,6 +171,7 @@ Entity* createFloorCeilingWall()
 {
 	Entity* wall = mainScene->createEntity();
 	wall->addComponent<BoxCollider>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS);
+	wall->addComponent<RectangleRenderer>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS, Color(34, 102, 102, 102));
 	wall->phys->is_static = true;
 	wall->phys->mass = 100000;
 	return wall;
@@ -180,6 +182,7 @@ Entity* createSideWalls()
 {
 	Entity* wall = mainScene->createEntity();
 	wall->addComponent<BoxCollider>(WALL_THICKNESS, SCREEN_HEIGHT + WALL_THICKNESS);
+	wall->addComponent<RectangleRenderer>(WALL_THICKNESS, SCREEN_HEIGHT + WALL_THICKNESS, Color(34, 102, 102, 102));
 	wall->phys->is_static = true;
 	wall->phys->mass = 100000;
 	return wall;
@@ -189,16 +192,16 @@ Entity* createSideWalls()
 void addBounds()
 {
 	Entity* topBound = createFloorCeilingWall();
-	topBound->transform->position.y = SCREEN_HEIGHT / 2 + WALL_THICKNESS / 2;
+	topBound->transform->position.y = SCREEN_HEIGHT / 2 + WALL_THICKNESS / 2 - WALL_INSET;
 	
 	Entity* bottomBound = createFloorCeilingWall();
-	bottomBound->transform->position.y = -SCREEN_HEIGHT / 2 - WALL_THICKNESS / 2;
+	bottomBound->transform->position.y = -SCREEN_HEIGHT / 2 - WALL_THICKNESS / 2 + WALL_INSET;
 	
 	Entity* leftBound = createSideWalls();
-	leftBound->transform->position.x = -SCREEN_WIDTH / 2 - WALL_THICKNESS / 2;
+	leftBound->transform->position.x = -SCREEN_WIDTH / 2 - WALL_THICKNESS / 2 + WALL_INSET;
 
 	Entity* rightBound = createSideWalls();
-	rightBound->transform->position.x = SCREEN_WIDTH / 2 + WALL_THICKNESS / 2;
+	rightBound->transform->position.x = SCREEN_WIDTH / 2 + WALL_THICKNESS / 2 - WALL_INSET;
 }
 
 // Spawn balls with physics in a grid across screen

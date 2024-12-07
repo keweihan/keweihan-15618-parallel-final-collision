@@ -17,7 +17,7 @@ void GameRenderer::initGameRenderer()
 	}
 
 	// Create window
-	window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
 	if (window == NULL)
 	{
 		throw std::runtime_error("Failure to create window. SDL_Error: " + std::string(SDL_GetError()));

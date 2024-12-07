@@ -21,6 +21,9 @@ ColliderEntity::ColliderEntity(SimpleECS::BoxCollider* col) {
     y_min = bounds.yMin;
     y_max = bounds.yMax;
     
+    w = col->width;
+    h = col->height;
+
     y_pos = col->entity->transform->position.y;
     x_pos = col->entity->transform->position.x;
 
@@ -147,12 +150,9 @@ public:
 */
 class CudaCollision {
 public:
-    // Collision object is not to be directly copied.
-    CudaCollision() = default;
-    CudaCollision(const Collision&) = delete;
-    CudaCollision& operator=(const CudaCollision&) = delete;
+    __device__ CudaCollision() = default;
 
-    bool is_colliding;
+    bool is_colliding = false;
     double penetration = 0;
     
     double normal_x;
@@ -160,7 +160,7 @@ public:
 };
 
 // Detect collision. Adpated version of SimpleECS::ColliderSystem::getCollisionBoxBox
-__device__ CudaCollision getCollisionBoxBox(const ColliderEntity& a, const ColliderEntity& b)
+__device__ CudaCollision getCollisionBoxBox(const ColliderEntity a, const ColliderEntity b)
 {
     CudaCollision collide;
     collide.is_colliding = true;
@@ -175,17 +175,16 @@ __device__ CudaCollision getCollisionBoxBox(const ColliderEntity& a, const Colli
     }
 
     // Boxes are colliding. Find axis of least penetration
-    double aExtentX = (a.x_max - a.x_min) / 2.0;
-    double bExtentX = (b.x_max - b.x_min) / 2.0;
-    double aExtentY = (a.y_max - a.y_min) / 2.0;
-    double bExtentY = (b.y_max - b.y_min) / 2.0;
+    double aExtentX = a.w / 2.0;
+    double bExtentX = b.w / 2.0;
+    double aExtentY = a.h / 2.0;
+    double bExtentY = b.h / 2.0;
 
     double xDistance = std::abs(a.x_pos - b.x_pos);
     double xOverlap = (aExtentX + bExtentX) - xDistance;
 
     double yDistance = std::abs(a.y_pos - b.y_pos);
     double yOverlap = (aExtentY + bExtentY) - yDistance;
-
 
     // Least penetration is on y-axis
     if (yOverlap < xOverlap)
@@ -236,10 +235,16 @@ __device__ void resolveCollide(CudaCollision collide, ColliderEntity* a, Collide
     }
 
 	// Shift position out of overlap (weighted shift amount based on relative mass)
-    double shift_x = -collide.normal_x * collide.penetration * massCoef/2;
-    double shift_y = -collide.normal_y * collide.penetration * massCoef/2;
+    double shift_x = collide.normal_x * collide.penetration * massCoef/2;
+    double shift_y = collide.normal_y * collide.penetration * massCoef/2;
 	a->x_pos += shift_x;
 	a->y_pos += shift_y;
+
+    // if(a->eid == 4) {
+    //     printf("4 collided with %d with collision normal of (%f, %f) and pen %f\n", b->eid, collide.normal_x, collide.normal_y, collide.penetration);
+    //     printf("4 is shifting: (%f, %f)\n", shift_x, shift_y);
+    // }
+
     //printf("%d is shifting x %f, y %f, from a collision with %d. End x y is (%f, %f)\n", a->eid, shift_x, shift_y, b->eid, a->x_pos, a->y_pos);
 	
     // Calculate new velocity (mass velocity 2D calculation)
@@ -253,14 +258,11 @@ __device__ void resolveCollide(CudaCollision collide, ColliderEntity* a, Collide
 
     CudaVector norm_vec = { static_cast<double>(collide.normal_x), static_cast<double>(collide.normal_y)};
 
-	CudaVector posDiff	= a_pos - b_pos;
-	double posDiffMag	= posDiff.getMagnitude() * posDiff.getMagnitude();
-	double dotProd		= posDiff.dotProduct(a_vel - b_vel);
 	CudaVector velocityChange = norm_vec * ((a_vel - b_vel).dotProduct(norm_vec)) * massCoef;
 
 	CudaVector futureVelocity = a_vel - velocityChange;
-    a->x_vel = futureVelocity.x;
-    a->y_vel = futureVelocity.y;
+    a->fx_vel = futureVelocity.x;
+    a->fy_vel = futureVelocity.y;
 }
 
 
@@ -278,9 +280,14 @@ __global__ void kernel(ColliderEntity* d_flattenedData, int* d_lengths, int* d_o
                 ColliderEntity* entity_b = &d_flattenedData[offset + j];
                 
                 // Resolve physics here
-                CudaCollision col = getCollisionBoxBox(*entity_a, *entity_b);
-                resolveCollide(col, entity_a, entity_b);
-                resolveCollide(col, entity_b, entity_a);
+                CudaCollision colA = getCollisionBoxBox(*entity_a, *entity_b);
+                CudaCollision colB = getCollisionBoxBox(*entity_b, *entity_a);
+                // if(entity_a->eid == 3) {
+                //     printf("(outer) 3 collided with %d with collision normal of (%d, %d) and pen %f\n", entity_b->eid, col.normal_x, col.normal_y, col.penetration);
+                // }
+
+                resolveCollide(colA, entity_a, entity_b);
+                resolveCollide(colB, entity_b, entity_a);
             }
         }
     }
@@ -305,8 +312,8 @@ void CudaResolve::launchKernel(int numThreads) {
         Entity* scene_ent = currScene->getEntity(ent.eid);
         if(ent.is_dirty)
         {
-            scene_ent->phys->futureVelocity.x = ent.x_vel;
-            scene_ent->phys->futureVelocity.y = ent.y_vel;
+            scene_ent->phys->futureVelocity.x = ent.fx_vel;
+            scene_ent->phys->futureVelocity.y = ent.fy_vel;
 
             scene_ent->transform->position.x = ent.x_pos;
             scene_ent->transform->position.y = ent.y_pos;

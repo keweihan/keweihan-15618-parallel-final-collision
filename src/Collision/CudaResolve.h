@@ -23,9 +23,13 @@ struct ColliderEntity {
 
     // phys params
     double x_vel, y_vel, x_pos, y_pos;
+    double fx_vel, fy_vel;
 
     // aabb
     double x_min, x_max, y_min, y_max;
+
+    // w/h
+    int w, h;
 
     // is it a static physics object (i.e. doesn't move)
     bool is_static;

@@ -23,7 +23,7 @@ using namespace std;
 using namespace SimpleECS;
 
 // Ball parameters (try precision 3, SPEED = 5)
-const int PRECISION = 3;
+const int PRECISION = 0;
 const int SPEED = 5;
 
 // Environment parameters

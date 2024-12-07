@@ -66,9 +66,6 @@ void SimpleECS::PhysicsBody::onCollide(const Collision& collide)
 	// Calculate new velocity (mass velocity 2D calculation)
 	// Adapted from https://en.wikipedia.org/wiki/Elastic_collision#Two-Dimensional_Collision_With_Two_Moving_Objects
 	// using collision normals instead of position vectors 
-	Vector posDiff		= entity->transform->position - collide.b->entity->transform->position;
-	double posDiffMag	= posDiff.getMagnitude() * posDiff.getMagnitude();
-	double dotProd		= posDiff.dotProduct(velocity - other.velocity);
 	Vector velocityChange = collide.normal * ((velocity - other.velocity).dotProduct(collide.normal)) * massCoef;
 
 	futureVelocity = velocity - velocityChange;
