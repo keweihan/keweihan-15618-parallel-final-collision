@@ -3,6 +3,7 @@
 #include "Collision/Collider.h"
 #include "ColliderGrid.h"
 #include "Physics/PhysicsBody.h"
+#include "Quadtree.h"
 #include "vector"
 
 namespace SimpleECS
@@ -60,8 +61,8 @@ namespace SimpleECS
 		/*
 		*
  		*/
-		ColliderGrid colliderGrid;
-
+		// ColliderGrid colliderGrid;
+		Quadtree quadtree;
 
 		/*
 		* If collide contains two AABB box containers. Populate with collision data
