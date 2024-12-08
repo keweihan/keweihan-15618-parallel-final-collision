@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Collider.h"
+#include "Collision/Collider.h"
 #include "ColliderCell.h" 
 
 namespace SimpleECS {
