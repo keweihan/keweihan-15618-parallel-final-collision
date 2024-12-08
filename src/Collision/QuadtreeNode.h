@@ -1,6 +1,8 @@
 #pragma once
+
 #include <vector>
 #include "Collider.h"
+#include "ColliderCell.h" 
 
 namespace SimpleECS {
 
@@ -21,9 +23,9 @@ private:
     static const int MAX_LEVELS = 5;
 
     int level;
-    std::vector<Collider*> colliders;
     Collider::AABB bounds;
     QuadtreeNode* children[4];
+    ColliderCell cell;
 };
 
 }

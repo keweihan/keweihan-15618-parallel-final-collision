@@ -7,11 +7,14 @@ Quadtree::Quadtree(const Collider::AABB& bounds) {
 }
 
 Quadtree::~Quadtree() {
+    clear();
     delete root;
 }
 
 void Quadtree::clear() {
-    root->clear();
+    if (root) {
+        root->clear();
+    }
 }
 
 void Quadtree::insert(Collider* collider) {
@@ -19,5 +22,8 @@ void Quadtree::insert(Collider* collider) {
 }
 
 void Quadtree::retrievePotentialCollisions(Collider* collider, std::vector<Collider*>& potentialColliders) {
-    root->retrieve(collider->getAABB(), potentialColliders);
+    Collider::AABB colliderBounds;
+    collider->getBounds(colliderBounds);
+
+    root->retrieve(colliderBounds, potentialColliders);
 }

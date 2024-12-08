@@ -14,7 +14,9 @@ QuadtreeNode::~QuadtreeNode() {
 }
 
 void QuadtreeNode::clear() {
-    colliders.clear();
+    // Reset the cell
+    cell = ColliderCell();
+
     for (int i = 0; i < 4; ++i) {
         if (children[i]) {
             children[i]->clear();
@@ -30,9 +32,13 @@ void QuadtreeNode::subdivide() {
     double x = bounds.xMin;
     double y = bounds.yMin;
 
+    // top-right
     children[0] = new QuadtreeNode(level + 1, { x + subWidth, x + 2 * subWidth, y + subHeight, y + 2 * subHeight });
+    // top-left
     children[1] = new QuadtreeNode(level + 1, { x, x + subWidth, y + subHeight, y + 2 * subHeight });
+    // bottom-left
     children[2] = new QuadtreeNode(level + 1, { x, x + subWidth, y, y + subHeight });
+    // bottom-right
     children[3] = new QuadtreeNode(level + 1, { x + subWidth, x + 2 * subWidth, y, y + subHeight });
 }
 
@@ -62,8 +68,11 @@ int QuadtreeNode::getIndex(const Collider::AABB& colliderBounds) {
 }
 
 void QuadtreeNode::insert(Collider* collider) {
+    // If subdivided, see if the collider belongs in a child
     if (children[0] != nullptr) {
-        int index = getIndex(collider->getAABB());
+        Collider::AABB colliderBounds;
+        collider->getBounds(colliderBounds);
+        int index = getIndex(colliderBounds);
 
         if (index != -1) {
             children[index]->insert(collider);
@@ -71,19 +80,21 @@ void QuadtreeNode::insert(Collider* collider) {
         }
     }
 
-    colliders.push_back(collider);
+    cell.insert(collider);
 
-    if (colliders.size() > MAX_OBJECTS && level < MAX_LEVELS) {
+    if (cell.size() > MAX_OBJECTS && level < MAX_LEVELS) {
         if (children[0] == nullptr) {
             subdivide();
         }
 
-        auto it = colliders.begin();
-        while (it != colliders.end()) {
-            int index = getIndex((*it)->getAABB());
+        for (auto it = cell.begin(); it != cell.end();) {
+            Collider::AABB cb;
+            (*it)->getBounds(cb);
+            int index = getIndex(cb);
             if (index != -1) {
-                children[index]->insert(*it);
-                it = colliders.erase(it);
+                Collider* c = *it;
+                it = cell.erase(it);
+                children[index]->insert(c);
             } else {
                 ++it;
             }
@@ -95,7 +106,15 @@ void QuadtreeNode::retrieve(const Collider::AABB& area, std::vector<Collider*>& 
     int index = getIndex(area);
     if (index != -1 && children[0] != nullptr) {
         children[index]->retrieve(area, returnedColliders);
+    } else if (children[0] != nullptr) {
+        // If the area overlaps multiple quadrants, we check all children
+        for (int i = 0; i < 4; ++i) {
+            children[i]->retrieve(area, returnedColliders);
+        }
     }
 
-    returnedColliders.insert(returnedColliders.end(), colliders.begin(), colliders.end());
+    // Add colliders from this cell
+    for (auto c : cell) {
+        returnedColliders.push_back(c);
+    }
 }

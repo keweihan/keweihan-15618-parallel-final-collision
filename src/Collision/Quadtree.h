@@ -1,5 +1,6 @@
 #pragma once
 #include "QuadtreeNode.h"
+#include "ColliderCell.h"
 
 namespace SimpleECS {
 
