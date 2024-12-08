@@ -59,7 +59,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		potentialPairs;
 
 	// Get all colliders from the current scene
-    auto colliders = Game::getInstance().getCurrentScene()->getComponents<Collider>();
+    auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
 	for (auto& collider : *colliders) {
         quadtree.insert(&collider);
     }
