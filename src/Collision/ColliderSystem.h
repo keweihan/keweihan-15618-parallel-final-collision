@@ -3,6 +3,7 @@
 #include "Collision/Collider.h"
 #include "ColliderGrid.h"
 #include "Physics/PhysicsBody.h"
+#include "Quadtree.h"
 #include "vector"
 
 namespace SimpleECS
@@ -30,8 +31,8 @@ namespace SimpleECS
 		}
 
 		// Delete these methods to ensure that copies of the singleton can't be made.
-		ColliderSystem(ColliderSystem const&) = delete;
-		void operator=(ColliderSystem const&) = delete;
+		// ColliderSystem(ColliderSystem const&) = delete;
+		// void operator=(ColliderSystem const&) = delete;
 		
 		/*
 		* Checks for collisions between all active colliders and invoke
@@ -51,7 +52,10 @@ namespace SimpleECS
 		bool getCollisionInfo(Collision& collide);
 
 	private:
-		ColliderSystem() : colliderGrid(ColliderGrid(2, 2)) {}
+		// ColliderSystem() : colliderGrid(ColliderGrid(2, 2)) {}
+		ColliderSystem();
+    	ColliderSystem(const ColliderSystem&) = delete;
+    	ColliderSystem& operator=(const ColliderSystem&) = delete;
 
 		/*
 		* Maintains list of all active colliders in scene. 
@@ -60,8 +64,8 @@ namespace SimpleECS
 		/*
 		*
  		*/
-		ColliderGrid colliderGrid;
-
+		// ColliderGrid colliderGrid;
+		Quadtree quadtree;
 
 		/*
 		* If collide contains two AABB box containers. Populate with collision data
