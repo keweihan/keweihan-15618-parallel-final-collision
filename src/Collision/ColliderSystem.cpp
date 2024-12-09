@@ -9,6 +9,8 @@
 #include <vector>
 #include <thread>
 #include <iostream>
+#include "CudaResolve.h"
+#include <cuda_runtime.h>
 
 using namespace SimpleECS;
 using namespace UtilSimpleECS;
@@ -46,7 +48,7 @@ ColliderSystem::ColliderSystem()
 		  -GameRenderer::SCREEN_HEIGHT / 2.0,
           GameRenderer::SCREEN_WIDTH / 2.0,
           GameRenderer::SCREEN_HEIGHT / 2.0,
-      })
+      }), colliderGrid(ColliderGrid(16, 16))
 {}
 
 void SimpleECS::ColliderSystem::invokeCollisions()
@@ -54,6 +56,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	quadtree.clear();
 	Collision collision = {};
 
+	// --------------------- QUADTREE SEQUENTIAL --------------------- //
 	// Get all colliders from the current scene
     auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
 	for (auto& collider : *colliders) {
@@ -74,6 +77,41 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 			}
 		}
 	}
+	// --------------------- QUADTREE SEQUENTIAL --------------------- //
+
+	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
+	// Set of potential collision pairs
+	// std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
+	// 	potentialPairs;
+
+	// // Populate with potential pairs
+	// try {
+	
+	// 	for (int i = 0; i < colliderGrid.size(); ++i)
+	// 	{
+	// 		auto cell = *colliderGrid.getCellContents(i);
+	// 		for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
+	// 		{
+	// 			for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
+	// 			{
+	// 				//potentialPairs.insert({ *iterA, *iterB });
+
+	// 				_invokeCollision(collision, (*iterA), (*iterB));
+	// 				_invokeCollision(collision, (*iterB), (*iterA));
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// catch (const std::exception& e) {
+	// 	std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
+	// }
+	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
+
+	// --------------------- CUDA --------------------- //
+	CudaResolve resolver(colliderGrid.getRawGrid());
+	resolver.flattenCopyToDevice();
+	resolver.launchKernel(10);
+	// ---------------------- ENDCUDA ---------------------- //
 }
 
 bool SimpleECS::ColliderSystem::getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b)

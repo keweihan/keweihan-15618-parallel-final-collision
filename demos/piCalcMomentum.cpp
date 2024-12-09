@@ -23,7 +23,7 @@ using namespace std;
 using namespace SimpleECS;
 
 // Ball parameters (try precision 3, SPEED = 5)
-const int PRECISION = 3;
+const int PRECISION = 0;
 const int SPEED = 5;
 
 // Environment parameters
@@ -105,15 +105,14 @@ Entity* createSquare(const int& x, const int& y, Vector vel, int side_length, do
 	Entity* newBall = mainScene->createEntity("ball");
 	newBall->addComponent<RectangleRenderer>(side_length, side_length, Color(102, 102, 102, 102));
 	newBall->addComponent<BoxCollider>(side_length, side_length);
-	Handle<PhysicsBody> physics = newBall->addComponent<PhysicsBody>();
 
 	// Set position
 	newBall->transform->position.x = x;
 	newBall->transform->position.y = y;
 
-	physics->velocity.x = vel.x;
-	physics->velocity.y = vel.y;
-	physics->mass = mass;
+	newBall->phys->velocity.x = vel.x;
+	newBall->phys->velocity.y = vel.y;
+	newBall->phys->mass = mass;
 
 	return newBall;
 }
@@ -124,14 +123,23 @@ void addBounds()
 	Entity* topBound = mainScene->createEntity();
 	topBound->addComponent<BoxCollider>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS);
 	topBound->transform->position.y = SCREEN_HEIGHT / 2 + WALL_THICKNESS / 2;
+	topBound->phys->is_static = true;
+	topBound->phys->mass = 10000000;
+	topBound->tag = "top";
 
 	Entity* bottomBound = mainScene->createEntity();
 	bottomBound->addComponent<BoxCollider>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS);
 	bottomBound->transform->position.y = -SCREEN_HEIGHT / 2 - WALL_THICKNESS / 2;
+	bottomBound->phys->is_static = true;
+	bottomBound->phys->mass = 10000000;
+	bottomBound->tag = "bottom";
 
 	Entity* leftBound = mainScene->createEntity();
 	leftBound->addComponent<BoxCollider>(WALL_THICKNESS, SCREEN_HEIGHT + WALL_THICKNESS);
 	leftBound->transform->position.x = -SCREEN_WIDTH / 2 - WALL_THICKNESS / 2;
+	leftBound->phys->is_static = true;
+	leftBound->phys->mass = 10000000;
+	leftBound->tag = "left";
 }
 
 int main() {
@@ -154,8 +162,8 @@ int main() {
 		Game::getInstance().configure(config);
 		Game::getInstance().addScene(mainScene);
 
-		Entity* floor = mainScene->createEntity();
-		floor->addComponent<LineRenderer>(Vector(- SCREEN_WIDTH / 2, -150), Vector(SCREEN_WIDTH / 2, -150), 3, Color(255, 255, 255, 1));
+		// Entity* floor = mainScene->createEntity();
+		// floor->addComponent<LineRenderer>(Vector(- SCREEN_WIDTH / 2, -150), Vector(SCREEN_WIDTH / 2, -150), 3, Color(255, 255, 255, 1));
 
 		// Create squares
 		Entity* right = createSquare(-350, -75, { -SPEED, 0 }, 150, WEIGHT);

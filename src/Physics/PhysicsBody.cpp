@@ -7,6 +7,7 @@ void SimpleECS::PhysicsBody::update()
 	//Vector gravity = Vector(0, -90.86);
 	//acceleration = gravity;
 
+	if(is_static) return;
 	velocity.x += acceleration.x * Timer::getDeltaTime() / 1000;
 	velocity.y += acceleration.y * Timer::getDeltaTime() / 1000;
 
@@ -19,6 +20,7 @@ void SimpleECS::PhysicsBody::update()
 
 void SimpleECS::PhysicsBody::applyForce(Vector direction, double magnitude)
 {
+	if(is_static) return;
 	direction.normalize();
 	velocity.x += (direction * magnitude * (1 / mass)).x;
 	velocity.y += (direction * magnitude * (1 / mass)).y;
@@ -31,6 +33,7 @@ void SimpleECS::PhysicsBody::onCollide(const Collider& other)
 
 void SimpleECS::PhysicsBody::onCollide(const Collision& collide)
 {
+	if(is_static) return;
 	// TODO:
 	// Eventaully collision resolution needs to all occur at the SAME TIME AT END OF FRAME
 	// i.e. setting first before getting. 
@@ -63,9 +66,6 @@ void SimpleECS::PhysicsBody::onCollide(const Collision& collide)
 	// Calculate new velocity (mass velocity 2D calculation)
 	// Adapted from https://en.wikipedia.org/wiki/Elastic_collision#Two-Dimensional_Collision_With_Two_Moving_Objects
 	// using collision normals instead of position vectors 
-	Vector posDiff		= entity->transform->position - collide.b->entity->transform->position;
-	double posDiffMag	= posDiff.getMagnitude() * posDiff.getMagnitude();
-	double dotProd		= posDiff.dotProduct(velocity - other.velocity);
 	Vector velocityChange = collide.normal * ((velocity - other.velocity).dotProduct(collide.normal)) * massCoef;
 
 	futureVelocity = velocity - velocityChange;

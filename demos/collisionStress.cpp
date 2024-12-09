@@ -18,14 +18,15 @@ using namespace SimpleECS;
 const bool RENDER_WINDOW = false;
 
 // Environment parameters
-const int SCREEN_HEIGHT		= 720;
-const int SCREEN_WIDTH		= 1280;
-const int WALL_THICKNESS	= 50;
+const int SCREEN_HEIGHT		= 1280;
+const int SCREEN_WIDTH		= 1920;
+const int WALL_THICKNESS	= 100;
+const int WALL_INSET = 20;
 
 // Ball parameters
-const int NUM_BALLS		= 13400;
-const int MAX_SPEED		= 25;
-const int MIN_SPEED		= 5;
+const int NUM_BALLS		= 60;
+const int MAX_SPEED		= 5;
+const int MIN_SPEED		= 2;
 const int SIDE_LENGTH	= 3;
 const int RAND_SEED		= 42;
 
@@ -153,15 +154,14 @@ Entity* createBall(const int& x, const int &y)
 	Entity* newBall = mainScene->createEntity("ball");
 	newBall->addComponent<RectangleRenderer>(SIDE_LENGTH, SIDE_LENGTH, Color(102, 102, 102, 102));
 	newBall->addComponent<BoxCollider>(SIDE_LENGTH, SIDE_LENGTH);
-	Handle<PhysicsBody> physics = newBall->addComponent<PhysicsBody>();
 
 	// Set position
 	newBall->transform->position.x = x;
 	newBall->transform->position.y = y;
 
 	// Randomize direction and speed
-	physics->velocity.x = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
-	physics->velocity.y = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
+	newBall->phys->velocity.x = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
+	newBall->phys->velocity.y = (MIN_SPEED + (rand() % static_cast<int>(MAX_SPEED - MIN_SPEED + 1))) * (rand() % 2 == 0 ? -1 : 1);
 
 	return newBall;
 }
@@ -171,6 +171,9 @@ Entity* createFloorCeilingWall()
 {
 	Entity* wall = mainScene->createEntity();
 	wall->addComponent<BoxCollider>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS);
+	wall->addComponent<RectangleRenderer>(SCREEN_WIDTH + WALL_THICKNESS, WALL_THICKNESS, Color(34, 102, 102, 102));
+	wall->phys->is_static = true;
+	wall->phys->mass = 100000;
 	return wall;
 }
 
@@ -179,6 +182,9 @@ Entity* createSideWalls()
 {
 	Entity* wall = mainScene->createEntity();
 	wall->addComponent<BoxCollider>(WALL_THICKNESS, SCREEN_HEIGHT + WALL_THICKNESS);
+	wall->addComponent<RectangleRenderer>(WALL_THICKNESS, SCREEN_HEIGHT + WALL_THICKNESS, Color(34, 102, 102, 102));
+	wall->phys->is_static = true;
+	wall->phys->mass = 100000;
 	return wall;
 }
 
@@ -186,16 +192,16 @@ Entity* createSideWalls()
 void addBounds()
 {
 	Entity* topBound = createFloorCeilingWall();
-	topBound->transform->position.y = SCREEN_HEIGHT / 2 + WALL_THICKNESS / 2;
+	topBound->transform->position.y = SCREEN_HEIGHT / 2 + WALL_THICKNESS / 2 - WALL_INSET;
 	
 	Entity* bottomBound = createFloorCeilingWall();
-	bottomBound->transform->position.y = -SCREEN_HEIGHT / 2 - WALL_THICKNESS / 2;
+	bottomBound->transform->position.y = -SCREEN_HEIGHT / 2 - WALL_THICKNESS / 2 + WALL_INSET;
 	
 	Entity* leftBound = createSideWalls();
-	leftBound->transform->position.x = -SCREEN_WIDTH / 2 - WALL_THICKNESS / 2;
+	leftBound->transform->position.x = -SCREEN_WIDTH / 2 - WALL_THICKNESS / 2 + WALL_INSET;
 
 	Entity* rightBound = createSideWalls();
-	rightBound->transform->position.x = SCREEN_WIDTH / 2 + WALL_THICKNESS / 2;
+	rightBound->transform->position.x = SCREEN_WIDTH / 2 + WALL_THICKNESS / 2 - WALL_INSET;
 }
 
 // Spawn balls with physics in a grid across screen

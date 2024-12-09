@@ -47,6 +47,9 @@ namespace SimpleECS
 		*/
 		void getCellBounds(Collider::AABB& output, const int index);
 
+		// @brief 15618: get raw grid of collider cells
+		std::vector<ColliderCell>* getRawGrid();
+		
 	private:
 		/*
 		* Add a collider to this grid
