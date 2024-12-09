@@ -43,9 +43,9 @@ inline void _invokeCollision(Collision& collision, Collider* a, Collider* b)
 ColliderSystem::ColliderSystem()
     : quadtree(Collider::AABB{
           -GameRenderer::SCREEN_WIDTH / 2.0,
+		  -GameRenderer::SCREEN_HEIGHT / 2.0,
           GameRenderer::SCREEN_WIDTH / 2.0,
-          -GameRenderer::SCREEN_HEIGHT / 2.0,
-          GameRenderer::SCREEN_HEIGHT / 2.0
+          GameRenderer::SCREEN_HEIGHT / 2.0,
       })
 {}
 
@@ -54,45 +54,26 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	quadtree.clear();
 	Collision collision = {};
 
-	// Set of potential collision pairs
-	std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
-		potentialPairs;
-
 	// Get all colliders from the current scene
     auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
 	for (auto& collider : *colliders) {
         quadtree.insert(&collider);
     }
 
-	// For each collider, retrieve potential collisions and check them
-    for (auto& collider : *colliders) {
-        std::vector<Collider*> potentialColliders;
-        quadtree.retrievePotentialCollisions(&collider, potentialColliders);
+	auto cells = quadtree.getCells();
+	for (auto& cell : *cells) {
+		for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
+		{
+			for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
+			{
+				collision.a = *iterA;
+				collision.b = *iterB;
 
-        for (auto potentialCollider : potentialColliders) {
-            if (&collider == potentialCollider) {
-                continue; // Skip self-collisions
-            }
-
-            // Avoid duplicate checks by sorting the pair
-            Collider* colliderA = &collider;
-            Collider* colliderB = potentialCollider;
-            if (colliderA > colliderB) {
-                std::swap(colliderA, colliderB);
-            }
-
-            // Set up the collision object
-            collision.a = colliderA;
-            collision.b = colliderB;
-
-            // Check if they collide
-            if (getCollisionInfo(collision)) {
-                // We confirmed a collision. Invoke collisions from both sides
-                _invokeCollision(collision, collision.a, collision.b);
-                _invokeCollision(collision, collision.b, collision.a);
-            }
-        }
-    }
+				_invokeCollision(collision, collision.a, collision.b);
+				_invokeCollision(collision, collision.b, collision.a);
+			}
+		}
+	}
 }
 
 bool SimpleECS::ColliderSystem::getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b)
