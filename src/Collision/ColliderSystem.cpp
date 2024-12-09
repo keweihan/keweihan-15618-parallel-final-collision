@@ -81,12 +81,6 @@ void SimpleECS::ColliderSystem::invokeCollisions()
                 std::swap(colliderA, colliderB);
             }
 
-            // If already processed this pair, skip it
-            if (potentialPairs.find({colliderA, colliderB}) != potentialPairs.end()) {
-                continue;
-            }
-            potentialPairs.insert({colliderA, colliderB});
-
             // Set up the collision object
             collision.a = colliderA;
             collision.b = colliderB;
