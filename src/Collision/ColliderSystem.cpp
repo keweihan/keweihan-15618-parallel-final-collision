@@ -48,7 +48,7 @@ ColliderSystem::ColliderSystem()
 		  -GameRenderer::SCREEN_HEIGHT / 2.0,
           GameRenderer::SCREEN_WIDTH / 2.0,
           GameRenderer::SCREEN_HEIGHT / 2.0,
-      }), colliderGrid(ColliderGrid(16, 16))
+      }, 20, 10), colliderGrid(ColliderGrid(16, 16))
 {}
 
 void SimpleECS::ColliderSystem::invokeCollisions()
