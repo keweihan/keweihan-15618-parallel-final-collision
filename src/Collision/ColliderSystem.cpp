@@ -57,26 +57,26 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	Collision collision = {};
 
 	// --------------------- QUADTREE SEQUENTIAL --------------------- //
-	// Get all colliders from the current scene
-    auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
-	for (auto& collider : *colliders) {
-        quadtree.insert(&collider);
-    }
+	// // Get all colliders from the current scene
+    // auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+	// for (auto& collider : *colliders) {
+    //     quadtree.insert(&collider);
+    // }
 
-	auto cells = quadtree.getCells();
-	for (auto& cell : *cells) {
-		for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
-		{
-			for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
-			{
-				collision.a = *iterA;
-				collision.b = *iterB;
+	// auto cells = quadtree.getCells();
+	// for (auto& cell : *cells) {
+	// 	for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
+	// 	{
+	// 		for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
+	// 		{
+	// 			collision.a = *iterA;
+	// 			collision.b = *iterB;
 
-				_invokeCollision(collision, collision.a, collision.b);
-				_invokeCollision(collision, collision.b, collision.a);
-			}
-		}
-	}
+	// 			_invokeCollision(collision, collision.a, collision.b);
+	// 			_invokeCollision(collision, collision.b, collision.a);
+	// 		}
+	// 	}
+	// }
 	// --------------------- QUADTREE SEQUENTIAL --------------------- //
 
 	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
@@ -107,11 +107,25 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// }
 	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
 
-	// --------------------- CUDA --------------------- //
-	CudaResolve resolver(colliderGrid.getRawGrid());
+	// --------------------- STATIC GRID CUDA --------------------- //
+	// CudaResolve resolver(colliderGrid.getRawGrid());
+	// resolver.flattenCopyToDevice();
+	// resolver.launchKernel(10);
+	// ---------------------- END STATIC GRID CUDA ---------------------- //
+
+	// --------------------- QUADTREE CUDA --------------------- //
+	auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+	for (auto& collider : *colliders) {
+        quadtree.insert(&collider);
+    }
+
+	CudaResolve resolver(quadtree.getCells());
 	resolver.flattenCopyToDevice();
 	resolver.launchKernel(10);
-	// ---------------------- ENDCUDA ---------------------- //
+	// ---------------------- END QUADTREE CUDA ---------------------- //
+
+
+
 }
 
 bool SimpleECS::ColliderSystem::getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b)
