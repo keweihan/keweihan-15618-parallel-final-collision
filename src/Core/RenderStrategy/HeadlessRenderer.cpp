@@ -1,5 +1,6 @@
 #include "./HeadlessRenderer.h"
 #include "Core/Timer.h"
+#include "Collision/ColliderSystem.h"
 #include <iomanip> // Add at top
 
 using namespace SimpleECS;
@@ -7,11 +8,23 @@ UtilSimpleECS::HeadlessRenderer::~HeadlessRenderer()
 {
 }
 
+std::string gridSchemeToString(GridScheme scheme) {
+    switch (scheme) {
+        case QUADTREE_CUDA: return "QUADTREE_CUDA";
+        case QUADTREE_SEQ: return "QUADTREE_SEQ";
+        case STATIC_GRID_CUDA: return "STATIC_GRID_CUDA";
+        case STATIC_GRID_SEQ: return "STATIC_GRID_SEQ";
+        default: return "UNKNOWN_SCHEME";
+    }
+}
+
 void UtilSimpleECS::HeadlessRenderer::init(const SimpleECS::RenderConfig &config)
 {
+    std::string gridScheme = gridSchemeToString(ColliderSystem::getInstance().scheme);
     std::cout << "===== INFO =====" << std::endl;
     std::cout << "Running simulation in headless (no render) mode." << std::endl;
     std::cout << "Statistics logging every " << INFO_FREQUENCY << "ms" << std::endl;
+    std::cout << "Running with collision scheme " << gridScheme << std::endl;
     std::cout << "Change INFO_FREQUENCY variable in HeadlessRenderer.h to configure" << std::endl;
 }
 

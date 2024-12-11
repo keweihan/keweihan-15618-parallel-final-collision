@@ -35,6 +35,9 @@ Game::Game()
 	GameRenderer::SCREEN_HEIGHT = 480;
 }
 
+// TODO: spaghet
+std::string gridSchemeToString(GridScheme scheme);
+
 void Game::configure(const RenderConfig& config)
 {
 	GameRenderer::SCREEN_WIDTH = config.width;
@@ -62,6 +65,20 @@ int Game::addScene(Scene* scene)
 void Game::init()
 {
 	renderer->init(renderConfig);
+	int input;
+	std::cout << "========CONFIGURE=======" << std::endl;
+	std::cout << "Select the grid type:\n"
+			<< "1: STATIC_GRID_SEQ\n"
+			<< "2: QUADTREE_SEQ\n"
+			<< "3: STATIC_GRID_CUDA\n"
+			<< "4: QUADTREE_CUDA\n";
+	std::cin >> input;
+	GridScheme scheme = static_cast<GridScheme>(input);
+    std::string schemeStr = gridSchemeToString(scheme);
+	ColliderSystem::getInstance().scheme = scheme;
+	std::cout << "========================" << std::endl;
+    std::cout << "Selected Grid Scheme: " << schemeStr << std::endl;
+
 }
 
 void Game::mainLoop()
