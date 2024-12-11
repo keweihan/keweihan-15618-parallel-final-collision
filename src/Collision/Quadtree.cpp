@@ -69,7 +69,7 @@ void Quadtree::subdivide(int nodeIndex) {
     // bottom-left
     node.children[2] = createNode(node.level + 1, { x, y, x + subWidth, y + subHeight });
     // bottom-right
-    node.children[3] = createNode(node.level + 1, { x + subWidth, x + 2 * subWidth, y, y + subHeight });
+    node.children[3] = createNode(node.level + 1, { x + subWidth, y, x + 2 * subWidth, y + subHeight });
 }
 
 void Quadtree::insert(Collider* collider) {
@@ -78,7 +78,6 @@ void Quadtree::insert(Collider* collider) {
 
 void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
     Node& node = nodes[nodeIndex];
-    ColliderCell& cell = allCells[node.cellIndex];
 
     Collider::AABB cb;
     collider->getBounds(cb);
@@ -93,33 +92,26 @@ void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
         Collider::AABB bottomLeft { node.bounds.xMin, node.bounds.yMin, verticalMidpoint, horizontalMidpoint };
         Collider::AABB bottomRight { verticalMidpoint, node.bounds.yMin, node.bounds.xMax, horizontalMidpoint };
 
-
-        // Collect all intersecting quadrants
-        bool inserted = false;
+        // Insert collider into intersecting child nodes
         if (isIntersecting(cb, topRight)) {
             insertAtNode(node.children[0], collider);
-            inserted = true;
         }
         if (isIntersecting(cb, topLeft)) {
             insertAtNode(node.children[1], collider);
-            inserted = true;
         }
         if (isIntersecting(cb, bottomLeft)) {
             insertAtNode(node.children[2], collider);
-            inserted = true;
         }
         if (isIntersecting(cb, bottomRight)) {
             insertAtNode(node.children[3], collider);
-            inserted = true;
         }
 
-        if (inserted) {
-            // Collider is handled by child nodes, so don’t store here
-            return;
-        }
+        // Do not store collider in this node
+        return;
     }
 
-    // Otherwise, store collider in this node's cell
+    // Store collider in this node's cell if it is a leaf
+    ColliderCell& cell = allCells[node.cellIndex];
     cell.insert(collider);
 
     // If we exceed max objects and we are not at max level, subdivide and redistribute
@@ -135,7 +127,6 @@ void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
         Collider::AABB topLeft  { node.bounds.xMin, horizontalMidpoint, verticalMidpoint, node.bounds.yMax };
         Collider::AABB bottomLeft { node.bounds.xMin, node.bounds.yMin, verticalMidpoint, horizontalMidpoint };
         Collider::AABB bottomRight { verticalMidpoint, node.bounds.yMin, node.bounds.xMax, horizontalMidpoint };
-
 
         for (auto it = cell.begin(); it != cell.end();) {
             Collider* c = *it;
@@ -160,11 +151,7 @@ void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
                 moved = true;
             }
 
-            if (moved) {
-                it = cell.erase(it);
-            } else {
-                ++it;
-            }
+            it = cell.erase(it);
         }
     }
 }

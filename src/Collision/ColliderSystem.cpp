@@ -57,7 +57,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	Collision collision = {};
 
 	// --------------------- QUADTREE SEQUENTIAL --------------------- //
-	// // Get all colliders from the current scene
+	// Get all colliders from the current scene
     // auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
 	// for (auto& collider : *colliders) {
     //     quadtree.insert(&collider);
@@ -80,10 +80,11 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// --------------------- QUADTREE SEQUENTIAL --------------------- //
 
 	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
-	// Set of potential collision pairs
+	// colliderGrid.updateGrid();
+	// //Set of potential collision pairs
 	// std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
 	// 	potentialPairs;
-
+	
 	// // Populate with potential pairs
 	// try {
 	
@@ -108,20 +109,21 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
 
 	// --------------------- STATIC GRID CUDA --------------------- //
+	// colliderGrid.updateGrid();
 	// CudaResolve resolver(colliderGrid.getRawGrid());
 	// resolver.flattenCopyToDevice();
 	// resolver.launchKernel(10);
 	// ---------------------- END STATIC GRID CUDA ---------------------- //
 
 	// --------------------- QUADTREE CUDA --------------------- //
-	auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
-	for (auto& collider : *colliders) {
-        quadtree.insert(&collider);
-    }
+	// auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+	// for (auto& collider : *colliders) {
+    //     quadtree.insert(&collider);
+    // }
 
-	CudaResolve resolver(quadtree.getCells());
-	resolver.flattenCopyToDevice();
-	resolver.launchKernel(10);
+	// CudaResolve resolver(quadtree.getCells());
+	// resolver.flattenCopyToDevice();
+	// resolver.launchKernel(10);
 	// ---------------------- END QUADTREE CUDA ---------------------- //
 
 
