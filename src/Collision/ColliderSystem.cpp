@@ -11,6 +11,7 @@
 #include <iostream>
 #include "CudaResolve.h"
 #include <cuda_runtime.h>
+#include "SDL.h"
 
 using namespace SimpleECS;
 using namespace UtilSimpleECS;
@@ -55,79 +56,109 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 {
 	quadtree.clear();
 	Collision collision = {};
+	switch (scheme) {
+	case STATIC_GRID_SEQ: {
+		colliderGrid.updateGrid();
+		// Populate with potential pairs
+		try {
+			for (int i = 0; i < colliderGrid.size(); ++i)
+			{
+				auto cell = *colliderGrid.getCellContents(i);
+				for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
+				{
+					for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
+					{
+						//potentialPairs.insert({ *iterA, *iterB });
 
-	// --------------------- QUADTREE SEQUENTIAL --------------------- //
-	// //Get all colliders from the current scene
-    // auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
-	// for (auto& collider : *colliders) {
-    //     quadtree.insert(&collider);
-    // }
+						_invokeCollision(collision, (*iterA), (*iterB));
+						_invokeCollision(collision, (*iterB), (*iterA));
+					}
+				}
+			}
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
+		}
+	}
+		break;
+	case STATIC_GRID_CUDA: {
+		colliderGrid.updateGrid();
+		CudaResolve resolver(colliderGrid.getRawGrid());
+		resolver.flattenCopyToDevice();
+		resolver.launchKernel(10);
+	}
+		break;
+	case QUADTREE_SEQ: {
+		auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+		for (auto& collider : *colliders) {
+		    quadtree.insert(&collider);
+		}
 
-	// auto cells = quadtree.getCells();
-	// for (auto& cell : *cells) {
-	// 	for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
-	// 	{
-	// 		for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
-	// 		{
-	// 			collision.a = *iterA;
-	// 			collision.b = *iterB;
+		auto cells = quadtree.getCells();
+		for (auto& cell : *cells) {
+			for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
+			{
+				for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
+				{
+					collision.a = *iterA;
+					collision.b = *iterB;
 
-	// 			_invokeCollision(collision, collision.a, collision.b);
-	// 			_invokeCollision(collision, collision.b, collision.a);
-	// 		}
-	// 	}
-	// }
-	// --------------------- QUADTREE SEQUENTIAL --------------------- //
+					_invokeCollision(collision, collision.a, collision.b);
+					_invokeCollision(collision, collision.b, collision.a);
+				}
+			}
+		}
+	}
+		break;
+	case QUADTREE_CUDA: {
+		auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+		for (auto& collider : *colliders) {
+		    quadtree.insert(&collider);
+		}
 
-	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
-	// colliderGrid.updateGrid();
-	// //Set of potential collision pairs
-	// std::unordered_set<std::pair<Collider*, Collider*>, PairHash<Collider*, Collider*>>
-	// 	potentialPairs;
+		CudaResolve resolver(quadtree.getCells());
+		resolver.flattenCopyToDevice();
+		resolver.launchKernel(10);
+	}
+		break;
+	}
+	visualizeCells();
+}
+
+void SimpleECS::ColliderSystem::visualizeCells() {
+	std::vector<Collider::AABB>* grid;
+	if(scheme == QUADTREE_CUDA || scheme == QUADTREE_SEQ) {
+		grid = quadtree.getCellBounds();
+	}
+	else {
+		grid = colliderGrid.getCellBounds();
+	}
 	
-	// // Populate with potential pairs
-	// try {
-	
-	// 	for (int i = 0; i < colliderGrid.size(); ++i)
-	// 	{
-	// 		auto cell = *colliderGrid.getCellContents(i);
-	// 		for (auto iterA = cell.begin(); iterA != cell.end(); ++iterA)
-	// 		{
-	// 			for (auto iterB = iterA + 1; iterB != cell.end(); ++iterB)
-	// 			{
-	// 				//potentialPairs.insert({ *iterA, *iterB });
+	for(const auto& bound : *grid)
+	{
+		Vector blCorner = TransformUtil::worldToScreenSpace(bound.xMin, bound.yMin);
+		Vector trCorner = TransformUtil::worldToScreenSpace(bound.xMax, bound.yMax);
 
-	// 				_invokeCollision(collision, (*iterA), (*iterB));
-	// 				_invokeCollision(collision, (*iterB), (*iterA));
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// catch (const std::exception& e) {
-	// 	std::cerr << "Exception occurred while populating potential pairs: " << e.what() << std::endl;
-	// }
-	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
+		// After transforming to screen space, let's ensure the corners are consistent
+		float left   = std::min(blCorner.x, trCorner.x);
+		float right  = std::max(blCorner.x, trCorner.x);
+		float top    = std::min(blCorner.y, trCorner.y);
+		float bottom = std::max(blCorner.y, trCorner.y);
 
-	// --------------------- STATIC GRID CUDA --------------------- //
-	colliderGrid.updateGrid();
-	CudaResolve resolver(colliderGrid.getRawGrid());
-	resolver.flattenCopyToDevice();
-	resolver.launchKernel(10);
-	// ---------------------- END STATIC GRID CUDA ---------------------- //
+		// Now define corners in a consistent top-left based coordinate system:
+		// Remember SDL's origin is top-left, so 'top' is the smaller y-value and 'bottom' is the larger y-value
+		SDL_FPoint points[] = {
+			{left,  bottom}, // Bottom-left
+			{left,  top},    // Top-left
+			{right, top},    // Top-right
+			{right, bottom}, // Bottom-right
+			{left,  bottom}  // Close the loop back to Bottom-left
+		};
 
-	// --------------------- QUADTREE CUDA --------------------- //
-	// auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
-	// for (auto& collider : *colliders) {
-    //     quadtree.insert(&collider);
-    // }
-
-	// CudaResolve resolver(quadtree.getCells());
-	// resolver.flattenCopyToDevice();
-	// resolver.launchKernel(10);
-	// ---------------------- END QUADTREE CUDA ---------------------- //
-
-
-
+		// Now draw with consistent ordering
+		SDL_SetRenderDrawColor(GameRenderer::renderer, 217, 217, 217, 255);
+		SDL_RenderDrawLinesF(GameRenderer::renderer, points, 5);
+	}
 }
 
 bool SimpleECS::ColliderSystem::getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b)

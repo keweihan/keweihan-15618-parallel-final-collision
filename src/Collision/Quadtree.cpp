@@ -33,6 +33,7 @@ void Quadtree::clear() {
     // Reset all data
     nodes.clear();
     allCells.clear();
+    cellBounds.clear();
 
     // Re-create root
     rootIndex = createNode(0, rootBounds);

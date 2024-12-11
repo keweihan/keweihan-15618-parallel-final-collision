@@ -8,6 +8,13 @@
 
 namespace SimpleECS
 {
+	enum GridScheme {
+		STATIC_GRID_SEQ = 1,
+		QUADTREE_SEQ = 2,
+		STATIC_GRID_CUDA = 3,
+		QUADTREE_CUDA = 4,
+	};
+
 	// Library only class for resolving collider logic
 	class ColliderSystem
 	{
@@ -46,6 +53,11 @@ namespace SimpleECS
 		 * @returns false if no collision is present, true otherwise
 		 */
 		bool getCollisionInfo(Collision& collide);
+
+		// 15618 - draw lines for each collider cell
+		void visualizeCells();
+
+		GridScheme scheme = STATIC_GRID_CUDA;
 
 	private:
 		ColliderSystem();
