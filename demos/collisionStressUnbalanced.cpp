@@ -28,11 +28,11 @@ const int CONTAINER_DIMENSION = 150;
 
 // Ball parameters
 const int NUM_CONTAINER_BALLS = 1500;
-const int NUM_BALLS		= 200;
-const int MAX_SPEED		= 50;
-const int MIN_SPEED		= 20;
-const int SIDE_LENGTH	= 2;
-const int RAND_SEED		= 42;
+const int NUM_BALLS			= 200;
+const int MAX_SPEED			= 50;
+const int MIN_SPEED			= 20;
+const double SIDE_LENGTH	= 2.5;
+const int RAND_SEED			= 42;
 
 
 // Globals

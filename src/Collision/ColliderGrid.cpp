@@ -43,10 +43,10 @@ void SimpleECS::ColliderGrid::insertToGrid(Collider* collider)
 	collider->getBounds(bound);
 
 	// Get the left most column index this collider exists in, rightMost, etc.
-	int columnLeft	= static_cast<int>(ceil((bound.xMin + GameRenderer::SCREEN_WIDTH / 2.0) / cellWidth));
-	int columnRight = static_cast<int>(ceil((bound.xMax + GameRenderer::SCREEN_WIDTH / 2.0) / cellWidth));
-	int rowTop		= static_cast<int>(ceil((-bound.yMin + GameRenderer::SCREEN_HEIGHT / 2.0) / cellHeight));
-	int rowBottom	= static_cast<int>(ceil((-bound.yMax + GameRenderer::SCREEN_HEIGHT / 2.0) / cellHeight));
+	int columnLeft	= static_cast<int>((bound.xMin + GameRenderer::SCREEN_WIDTH / 2.0) / cellWidth);
+	int columnRight = static_cast<int>((bound.xMax + GameRenderer::SCREEN_WIDTH / 2.0) / cellWidth);
+	int rowTop		= static_cast<int>((-bound.yMin + GameRenderer::SCREEN_HEIGHT / 2.0) / cellHeight);
+	int rowBottom	= static_cast<int>((-bound.yMax + GameRenderer::SCREEN_HEIGHT / 2.0) / cellHeight);
 
 	int colLeftClamped	= clamp(columnLeft, 0, numColumn - 1);
 	int colRightClamped = clamp(columnRight, 0, numColumn - 1);
@@ -89,7 +89,7 @@ void SimpleECS::ColliderGrid::updateGrid()
 			// If not in this cell, remove reference
 			(*colliderIter)->getBounds(colliderBound);
 			if (colliderBound.xMin > cellBound.xMax || colliderBound.xMax < cellBound.xMin
-				|| colliderBound.yMax < cellBound.yMin || colliderBound.yMin > colliderBound.yMax)
+				|| colliderBound.yMax < cellBound.yMin || colliderBound.yMin > cellBound.yMax)
 			{
 				colliderIter = grid[i].erase(colliderIter);
 			}
@@ -128,10 +128,10 @@ void SimpleECS::ColliderGrid::getCellBounds(Collider::AABB& output, const int in
 	int column = index % numColumn;
 	int row = (index - column) / numColumn;
 
-	output.xMin = -GameRenderer::SCREEN_WIDTH + column * cellWidth;
+	output.xMin = -GameRenderer::SCREEN_WIDTH / 2 + column * cellWidth;
 	output.xMax = output.xMin + cellWidth;
 
-	output.yMax = GameRenderer::SCREEN_HEIGHT - row * cellHeight;
+	output.yMax = GameRenderer::SCREEN_HEIGHT / 2 - row * cellHeight;
 	output.yMin = output.yMax - cellHeight;
 }
 
