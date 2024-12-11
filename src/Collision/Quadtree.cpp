@@ -3,13 +3,12 @@
 using namespace SimpleECS;
 
 Quadtree::Quadtree(const Collider::AABB& bounds, int maxObjects, int maxLevels)
-    : maxObjects(maxObjects), maxLevels(maxLevels)
+    : maxObjects(maxObjects), maxLevels(maxLevels), rootBounds(bounds)
 {
-    rootBounds = bounds;
-    rootIndex = createNode(0, rootBounds);
-
     nodes.reserve(100000);
     allCells.reserve(100000);
+
+    rootIndex = createNode(0, rootBounds);
 }
 
 int Quadtree::createNode(int level, const Collider::AABB& bounds) {
@@ -29,29 +28,9 @@ int Quadtree::createNode(int level, const Collider::AABB& bounds) {
 }
 
 void Quadtree::clear() {
-    // Reset all data
     nodes.clear();
     allCells.clear();
-
-    // Re-create root
     rootIndex = createNode(0, rootBounds);
-}
-
-void Quadtree::clearNode(int nodeIndex) {
-    if (nodeIndex < 0) return;
-    Node& node = nodes[nodeIndex];
-
-    // Reset the cell at this node
-    allCells[node.cellIndex] = ColliderCell();
-
-    // Clear children
-    for (int i = 0; i < 4; ++i) {
-        int c = node.children[i];
-        if (c != -1) {
-            clearNode(c);
-            node.children[i] = -1;
-        }
-    }
 }
 
 void Quadtree::subdivide(int nodeIndex) {
@@ -69,11 +48,36 @@ void Quadtree::subdivide(int nodeIndex) {
     // bottom-left
     node.children[2] = createNode(node.level + 1, { x, y, x + subWidth, y + subHeight });
     // bottom-right
-    node.children[3] = createNode(node.level + 1, { x + subWidth, x + 2 * subWidth, y, y + subHeight });
+    node.children[3] = createNode(node.level + 1, { x + subWidth, y, x + 2 * subWidth, y + subHeight });
 }
 
 void Quadtree::insert(Collider* collider) {
     insertAtNode(rootIndex, collider);
+}
+
+int Quadtree::getQuadrant(const Collider::AABB& cBounds, const Collider::AABB& nodeBounds) const {
+    double verticalMidpoint = nodeBounds.xMin + (nodeBounds.xMax - nodeBounds.xMin) / 2.0;
+    double horizontalMidpoint = nodeBounds.yMin + (nodeBounds.yMax - nodeBounds.yMin) / 2.0;
+
+    bool fitsTop = (cBounds.yMin >= horizontalMidpoint);
+    bool fitsBottom = (cBounds.yMax <= horizontalMidpoint);
+    bool fitsLeft = (cBounds.xMax <= verticalMidpoint);
+    bool fitsRight = (cBounds.xMin >= verticalMidpoint);
+
+    // Quadrants:
+    // 0: top-right, 1: top-left, 2: bottom-left, 3: bottom-right
+    if (fitsRight && fitsTop) {
+        return 0; // top-right
+    } else if (fitsLeft && fitsTop) {
+        return 1; // top-left
+    } else if (fitsLeft && fitsBottom) {
+        return 2; // bottom-left
+    } else if (fitsRight && fitsBottom) {
+        return 3; // bottom-right
+    }
+
+    // Doesn't fit exclusively in one quadrant
+    return -1;
 }
 
 void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
@@ -83,38 +87,11 @@ void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
     Collider::AABB cb;
     collider->getBounds(cb);
 
-    // If children exist, try to put collider into any that intersect
+    // If children exist, try placing collider in a child
     if (node.children[0] != -1) {
-        double verticalMidpoint = node.bounds.xMin + (node.bounds.xMax - node.bounds.xMin) / 2.0;
-        double horizontalMidpoint = node.bounds.yMin + (node.bounds.yMax - node.bounds.yMin) / 2.0;
-
-        Collider::AABB topRight { verticalMidpoint, horizontalMidpoint, node.bounds.xMax, node.bounds.yMax };
-        Collider::AABB topLeft  { node.bounds.xMin, horizontalMidpoint, verticalMidpoint, node.bounds.yMax };
-        Collider::AABB bottomLeft { node.bounds.xMin, node.bounds.yMin, verticalMidpoint, horizontalMidpoint };
-        Collider::AABB bottomRight { verticalMidpoint, node.bounds.yMin, node.bounds.xMax, horizontalMidpoint };
-
-
-        // Collect all intersecting quadrants
-        bool inserted = false;
-        if (isIntersecting(cb, topRight)) {
-            insertAtNode(node.children[0], collider);
-            inserted = true;
-        }
-        if (isIntersecting(cb, topLeft)) {
-            insertAtNode(node.children[1], collider);
-            inserted = true;
-        }
-        if (isIntersecting(cb, bottomLeft)) {
-            insertAtNode(node.children[2], collider);
-            inserted = true;
-        }
-        if (isIntersecting(cb, bottomRight)) {
-            insertAtNode(node.children[3], collider);
-            inserted = true;
-        }
-
-        if (inserted) {
-            // Collider is handled by child nodes, so don’t store here
+        int quadrant = getQuadrant(cb, node.bounds);
+        if (quadrant != -1) {
+            insertAtNode(node.children[quadrant], collider);
             return;
         }
     }
@@ -128,43 +105,35 @@ void Quadtree::insertAtNode(int nodeIndex, Collider* collider) {
             subdivide(nodeIndex);
         }
 
-        double verticalMidpoint = node.bounds.xMin + (node.bounds.xMax - node.bounds.xMin) / 2.0;
-        double horizontalMidpoint = node.bounds.yMin + (node.bounds.yMax - node.bounds.yMin) / 2.0;
-
-        Collider::AABB topRight { verticalMidpoint, horizontalMidpoint, node.bounds.xMax, node.bounds.yMax };
-        Collider::AABB topLeft  { node.bounds.xMin, horizontalMidpoint, verticalMidpoint, node.bounds.yMax };
-        Collider::AABB bottomLeft { node.bounds.xMin, node.bounds.yMin, verticalMidpoint, horizontalMidpoint };
-        Collider::AABB bottomRight { verticalMidpoint, node.bounds.yMin, node.bounds.xMax, horizontalMidpoint };
-
-
         for (auto it = cell.begin(); it != cell.end();) {
             Collider* c = *it;
             Collider::AABB cBounds;
             c->getBounds(cBounds);
 
-            bool moved = false;
-            if (isIntersecting(cBounds, topRight)) {
-                insertAtNode(node.children[0], c);
-                moved = true;
-            }
-            if (isIntersecting(cBounds, topLeft)) {
-                insertAtNode(node.children[1], c);
-                moved = true;
-            }
-            if (isIntersecting(cBounds, bottomLeft)) {
-                insertAtNode(node.children[2], c);
-                moved = true;
-            }
-            if (isIntersecting(cBounds, bottomRight)) {
-                insertAtNode(node.children[3], c);
-                moved = true;
-            }
-
-            if (moved) {
+            int quadrant = getQuadrant(cBounds, node.bounds);
+            if (quadrant != -1) {
+                insertAtNode(node.children[quadrant], c);
                 it = cell.erase(it);
             } else {
                 ++it;
             }
+        }
+    }
+}
+
+void Quadtree::clearNode(int nodeIndex) {
+    if (nodeIndex < 0) return;
+    Node& node = nodes[nodeIndex];
+
+    // Reset the cell at this node
+    allCells[node.cellIndex] = ColliderCell();
+
+    // Clear children
+    for (int i = 0; i < 4; ++i) {
+        int c = node.children[i];
+        if (c != -1) {
+            clearNode(c);
+            node.children[i] = -1;
         }
     }
 }
