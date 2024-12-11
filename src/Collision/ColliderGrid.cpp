@@ -16,6 +16,7 @@ ColliderGrid::ColliderGrid(const int w, const int h)
 	numColumn = static_cast<int>(ceil(GameRenderer::SCREEN_WIDTH / (double)cellWidth));
 
 	grid.resize(numRow * numColumn + 1); // Last index represents out of bounds cell
+	cellBounds.resize(numRow * numColumn + 1); 
 	boxPool = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
 }
 
@@ -82,7 +83,7 @@ void SimpleECS::ColliderGrid::updateGrid()
 	{
 		if (grid[i].size() == 0) continue;
 		getCellBounds(cellBound, i);
-
+		cellBounds[i] = cellBound;
 		for (auto colliderIter = grid[i].begin(); colliderIter != grid[i].end();)
 		{
 			// If not in this cell, remove reference

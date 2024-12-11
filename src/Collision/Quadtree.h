@@ -11,7 +11,8 @@ public:
     void clear();
     void insert(Collider* collider);
     std::vector<ColliderCell>* getCells() { return &allCells; }
-
+    std::vector<Collider::AABB>* getCellBounds() { return &cellBounds; }
+    
 private:
     struct Node {
         int level;
@@ -28,6 +29,7 @@ private:
         return (a.xMin <= b.xMax && a.xMax >= b.xMin &&
                 a.yMin <= b.yMax && a.yMax >= b.yMin);
     }
+    
 
     // Quadtree parameters
     int maxObjects;
@@ -36,6 +38,7 @@ private:
     // Storage
     std::vector<Node> nodes;
     std::vector<ColliderCell> allCells; // Global collider cells storage
+    std::vector<Collider::AABB> cellBounds;
 
     // The root node index
     int rootIndex;

@@ -25,6 +25,7 @@ int Quadtree::createNode(int level, const Collider::AABB& bounds) {
     node.cellIndex = static_cast<int>(allCells.size()) - 1;
 
     nodes.push_back(node);
+    cellBounds.push_back(bounds);
     return static_cast<int>(nodes.size()) - 1;
 }
 

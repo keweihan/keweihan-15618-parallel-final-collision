@@ -48,6 +48,9 @@ namespace SimpleECS
 		void getCellBounds(Collider::AABB& output, const int index);
 
 		// @brief 15618: get raw grid of collider cells
+		std::vector<Collider::AABB>* getCellBounds() { return &cellBounds; }
+
+		// @brief 15618: get raw grid of collider cells
 		std::vector<ColliderCell>* getRawGrid();
 		
 	private:
@@ -77,6 +80,12 @@ namespace SimpleECS
 		* Stores original BoxCollider components.
 		*/
 		std::vector<BoxCollider>* boxPool;
+
+
+		/*
+		* 15618 - for rendering bounds
+		*/
+		std::vector<Collider::AABB> cellBounds;
 
 		// LEGACY: list of all active colliders
 		//std::vector<Collider*> colliderList;
