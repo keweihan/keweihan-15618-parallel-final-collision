@@ -6,6 +6,7 @@ set(DEMO_TARGETS
     collisionStress
     conway
     piCalcMomentum
+    collisionStressUnbalanced
 )
 
 # First copy assets to build directory for Visual Studio development

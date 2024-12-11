@@ -48,7 +48,7 @@ ColliderSystem::ColliderSystem()
 		  -GameRenderer::SCREEN_HEIGHT / 2.0,
           GameRenderer::SCREEN_WIDTH / 2.0,
           GameRenderer::SCREEN_HEIGHT / 2.0,
-      }, 20, 10), colliderGrid(ColliderGrid(16, 16))
+      }, 20, 10), colliderGrid(ColliderGrid(32, 32))
 {}
 
 void SimpleECS::ColliderSystem::invokeCollisions()
@@ -57,7 +57,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	Collision collision = {};
 
 	// --------------------- QUADTREE SEQUENTIAL --------------------- //
-	// Get all colliders from the current scene
+	// //Get all colliders from the current scene
     // auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
 	// for (auto& collider : *colliders) {
     //     quadtree.insert(&collider);
@@ -109,10 +109,10 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	// --------------------- STATIC GRID SEQUENTIAL --------------------- //
 
 	// --------------------- STATIC GRID CUDA --------------------- //
-	// colliderGrid.updateGrid();
-	// CudaResolve resolver(colliderGrid.getRawGrid());
-	// resolver.flattenCopyToDevice();
-	// resolver.launchKernel(10);
+	colliderGrid.updateGrid();
+	CudaResolve resolver(colliderGrid.getRawGrid());
+	resolver.flattenCopyToDevice();
+	resolver.launchKernel(10);
 	// ---------------------- END STATIC GRID CUDA ---------------------- //
 
 	// --------------------- QUADTREE CUDA --------------------- //
