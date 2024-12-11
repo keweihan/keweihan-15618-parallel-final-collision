@@ -3,12 +3,13 @@
 using namespace SimpleECS;
 
 Quadtree::Quadtree(const Collider::AABB& bounds, int maxObjects, int maxLevels)
-    : maxObjects(maxObjects), maxLevels(maxLevels), rootBounds(bounds)
+    : maxObjects(maxObjects), maxLevels(maxLevels)
 {
+    rootBounds = bounds;
+    rootIndex = createNode(0, rootBounds);
+
     nodes.reserve(100000);
     allCells.reserve(100000);
-
-    rootIndex = createNode(0, rootBounds);
 }
 
 int Quadtree::createNode(int level, const Collider::AABB& bounds) {

@@ -2,7 +2,6 @@
 
 #include "Collider.h"
 #include "ColliderCell.h"
-#include <vector>
 
 namespace SimpleECS {
 
@@ -12,8 +11,6 @@ public:
 
     void clear();
     void insert(Collider* collider);
-
-    // Optionally, provide direct access to allCells if needed
     std::vector<ColliderCell>* getCells() { return &allCells; }
 
 private:
