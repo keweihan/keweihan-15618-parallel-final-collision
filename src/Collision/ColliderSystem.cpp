@@ -5,6 +5,7 @@
 #include "Core/Entity.h"
 #include "Core/GameRenderer.h"
 #include "Utility/TransformUtil.h"
+#include "Utility/ThreadCount.h"
 #include "boost/functional/hash.hpp"
 #include <vector>
 #include <thread>
@@ -16,8 +17,15 @@
 using namespace SimpleECS;
 using namespace UtilSimpleECS;
 
-//------------------- Collision invocation ---------------------//
+const int QUAD_MAX_CELL =  100;
+const int QUAD_MAX_LEVELS =  100;
+ 
+const int GRID_WIDTH =  32;
+const int GRID_HEIGHT =  32;
 
+const int CELL_LOG_FREQUENCY = 5000;
+
+//------------------- Collision invocation ---------------------//
 template<typename T1, typename T2>
 struct PairHash {
 	std::size_t operator()(const std::pair<T1, T2>& p) const {
@@ -49,8 +57,18 @@ ColliderSystem::ColliderSystem()
 		  -GameRenderer::SCREEN_HEIGHT / 2.0,
           GameRenderer::SCREEN_WIDTH / 2.0,
           GameRenderer::SCREEN_HEIGHT / 2.0,
-      }, 20, 10), colliderGrid(ColliderGrid(32, 32))
+      }, QUAD_MAX_CELL, QUAD_MAX_LEVELS), colliderGrid(ColliderGrid(GRID_WIDTH, GRID_HEIGHT))
 {}
+
+void logPrintThreads(int t) {
+	UtilSimpleECS::ThreadCount::logThreads(t);
+	if(UtilSimpleECS::ThreadCount::timeSinceGetAvg() > CELL_LOG_FREQUENCY)
+	{
+		std::cout << "Avg number of threads over past "; 
+		std::cout <<  CELL_LOG_FREQUENCY/1000 << " seconds: ";
+		std::cout << UtilSimpleECS::ThreadCount::getAvgThreads() << std::endl;
+	}
+}
 
 void SimpleECS::ColliderSystem::invokeCollisions()
 {
@@ -59,6 +77,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	switch (scheme) {
 	case STATIC_GRID_SEQ: {
 		colliderGrid.updateGrid();
+		logPrintThreads(1);
 		// Populate with potential pairs
 		try {
 			for (int i = 0; i < colliderGrid.size(); ++i)
@@ -83,6 +102,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		break;
 	case STATIC_GRID_CUDA: {
 		colliderGrid.updateGrid();
+		logPrintThreads(colliderGrid.getRawGrid()->size());
 		CudaResolve resolver(colliderGrid.getRawGrid());
 		resolver.flattenCopyToDevice();
 		resolver.launchKernel(10);
@@ -93,6 +113,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		for (auto& collider : *colliders) {
 		    quadtree.insert(&collider);
 		}
+		logPrintThreads(1);
 
 		auto cells = quadtree.getCells();
 		for (auto& cell : *cells) {
@@ -115,7 +136,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		for (auto& collider : *colliders) {
 		    quadtree.insert(&collider);
 		}
-
+		logPrintThreads(quadtree.getCells()->size());
 		CudaResolve resolver(quadtree.getCells());
 		resolver.flattenCopyToDevice();
 		resolver.launchKernel(10);
