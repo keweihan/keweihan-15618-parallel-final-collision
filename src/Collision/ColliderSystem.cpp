@@ -17,11 +17,11 @@
 using namespace SimpleECS;
 using namespace UtilSimpleECS;
 
-const int QUAD_MAX_CELL =  100;
-const int QUAD_MAX_LEVELS =  100;
+const int QUAD_MAX_CELL =  20;
+const int QUAD_MAX_LEVELS =  10;
  
-const int GRID_WIDTH =  32;
-const int GRID_HEIGHT =  32;
+const int GRID_WIDTH =  26;
+const int GRID_HEIGHT =  26;
 
 const int CELL_LOG_FREQUENCY = 5000;
 
@@ -110,6 +110,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		break;
 	case QUADTREE_SEQ: {
 		auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+		quadtree.reserve(10000000);
 		for (auto& collider : *colliders) {
 		    quadtree.insert(&collider);
 		}
@@ -133,6 +134,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		break;
 	case QUADTREE_CUDA: {
 		auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+		quadtree.reserve(10000000);
 		for (auto& collider : *colliders) {
 		    quadtree.insert(&collider);
 		}
@@ -177,7 +179,7 @@ void SimpleECS::ColliderSystem::visualizeCells() {
 		};
 
 		// Now draw with consistent ordering
-		SDL_SetRenderDrawColor(GameRenderer::renderer, 217, 217, 217, 255);
+		SDL_SetRenderDrawColor(GameRenderer::renderer, 102, 102, 102, 255);
 		SDL_RenderDrawLinesF(GameRenderer::renderer, points, 5);
 	}
 }

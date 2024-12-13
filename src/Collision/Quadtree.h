@@ -10,6 +10,8 @@ public:
 
     void clear();
     void insert(Collider* collider);
+    void reserve(int count); // number of references
+
     std::vector<ColliderCell>* getCells() { return &allCells; }
     std::vector<Collider::AABB>* getCellBounds() { return &cellBounds; }
     

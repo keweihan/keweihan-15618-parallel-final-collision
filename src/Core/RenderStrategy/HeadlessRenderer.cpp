@@ -38,7 +38,7 @@ void UtilSimpleECS::HeadlessRenderer::frameEnd(SimpleECS::Scene* scene)
     int currentTime = SimpleECS::Timer::getProgramLifetime();
     if(currentTime - prevOutputTime >= INFO_FREQUENCY)
     {
-        std::cout << std::fixed << std::setprecision(3)  // Set precision to 3 decimal places
+        std::cout << std::fixed << std::setprecision(7)  // Set precision to 3 decimal places
                   << "====  Performance Stats @ "  << static_cast<int>(currentTime/1000) << "s  ====" << std::endl
                   << "Total entities         : " << scene->getEntities().size() << std::endl
                   << "Steps/frames simulated : " << framesSinceOutput << std::endl

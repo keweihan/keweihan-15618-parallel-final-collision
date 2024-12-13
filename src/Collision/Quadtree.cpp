@@ -7,9 +7,11 @@ Quadtree::Quadtree(const Collider::AABB& bounds, int maxObjects, int maxLevels)
 {
     rootBounds = bounds;
     rootIndex = createNode(0, rootBounds);
+}
 
-    nodes.reserve(100000);
-    allCells.reserve(100000);
+void Quadtree::reserve(int cout) {
+    nodes.reserve(cout);
+    allCells.reserve(cout);
 }
 
 int Quadtree::createNode(int level, const Collider::AABB& bounds) {
