@@ -47,7 +47,7 @@ public:
     void flattenCopyToDevice();
 
     /// @brief Launch CUDA kernel
-    void launchKernel(int numThreads);
+    void kernelResolvePhysics(int numThreads);
 
     ~CudaResolve();
 

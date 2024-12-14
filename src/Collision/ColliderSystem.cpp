@@ -114,7 +114,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		logPrintThreads(colliderGrid.getRawGrid()->size());
 		CudaResolve resolver(colliderGrid.getRawGrid());
 		resolver.flattenCopyToDevice();
-		resolver.launchKernel(10);
+		resolver.kernelResolvePhysics(10);
 	}
 		break;
 	case QUADTREE_SEQ: { 
@@ -142,7 +142,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		logPrintThreads(quadtree.getCells()->size());
 		CudaResolve resolver(quadtree.getCells());
 		resolver.flattenCopyToDevice();
-		resolver.launchKernel(10);
+		resolver.kernelResolvePhysics(10);
 	}
 		break;
 	case QUADTREE_CUDA_SEMI_STATIC: {
@@ -154,7 +154,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		logPrintThreads(quadtree.getCells()->size());
 		CudaResolve resolver(quadtree.getCells());
 		resolver.flattenCopyToDevice();
-		resolver.launchKernel(10);
+		resolver.kernelResolvePhysics(10);
 	}
 		break;
 	}

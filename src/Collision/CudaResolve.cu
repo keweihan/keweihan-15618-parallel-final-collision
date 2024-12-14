@@ -284,7 +284,7 @@ __global__ void kernel(ColliderEntity* d_flattenedData, int* d_lengths, int* d_o
 }
 
 // Kernel launch
-void CudaResolve::launchKernel(int numThreads) {
+void CudaResolve::kernelResolvePhysics(int numThreads) {
     // Launch kernel process parallel
     dim3 blockDim(numThreads);
     dim3 gridDim((numCells + numThreads - 1) / numThreads);
