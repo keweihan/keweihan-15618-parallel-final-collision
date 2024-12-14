@@ -5,6 +5,7 @@
 #include "Physics/PhysicsBody.h"
 #include "Quadtree.h"
 #include "vector"
+#include "Utility/FrameCounter.h"
 
 namespace SimpleECS
 {
@@ -13,6 +14,7 @@ namespace SimpleECS
 		QUADTREE_SEQ = 2,
 		STATIC_GRID_CUDA = 3,
 		QUADTREE_CUDA = 4,
+		QUADTREE_CUDA_SEMI_STATIC = 5,
 	};
 
 	// Library only class for resolving collider logic
@@ -74,9 +76,13 @@ namespace SimpleECS
 		ColliderGrid colliderGrid;
 		Quadtree quadtree;
 
+		UtilSimpleECS::FrameCounter frameCounter;
+
 		/*
 		* If collide contains two AABB box containers. Populate with collision data
 		*/
 		bool getCollisionBoxBox(Collision& collide, BoxCollider* a, BoxCollider* b);
+
+		void updateQuadtree();
 	};
 }

@@ -14,6 +14,7 @@ std::string gridSchemeToString(GridScheme scheme) {
         case QUADTREE_SEQ: return "QUADTREE_SEQ";
         case STATIC_GRID_CUDA: return "STATIC_GRID_CUDA";
         case STATIC_GRID_SEQ: return "STATIC_GRID_SEQ";
+        case QUADTREE_CUDA_SEMI_STATIC: return "QUADTREE_CUDA_SEMI_STATIC";
         default: return "UNKNOWN_SCHEME";
     }
 }

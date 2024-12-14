@@ -71,7 +71,8 @@ void Game::init()
 			<< "1: STATIC_GRID_SEQ\n"
 			<< "2: QUADTREE_SEQ\n"
 			<< "3: STATIC_GRID_CUDA\n"
-			<< "4: QUADTREE_CUDA\n";
+			<< "4: QUADTREE_CUDA\n"
+			<< "5: QUADTREE_CUDA_SEMI_STATIC\n";
 	std::cin >> input;
 	GridScheme scheme = static_cast<GridScheme>(input);
     std::string schemeStr = gridSchemeToString(scheme);

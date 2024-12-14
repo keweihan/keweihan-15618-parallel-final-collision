@@ -23,6 +23,7 @@ const int QUAD_MAX_LEVELS =  10;
 const int GRID_WIDTH =  26;
 const int GRID_HEIGHT =  26;
 
+const int FRAMES_PER_GRID_UPDATE = 10; // semi-static assignment
 const int CELL_LOG_FREQUENCY = 5000;
 
 //------------------- Collision invocation ---------------------//
@@ -70,9 +71,17 @@ void logPrintThreads(int t) {
 	}
 }
 
+void SimpleECS::ColliderSystem::updateQuadtree() {
+	quadtree.clear();
+	auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
+	quadtree.reserve(10000000);
+	for (auto& collider : *colliders) {
+		quadtree.insert(&collider);
+	}
+}
+
 void SimpleECS::ColliderSystem::invokeCollisions()
 {
-	quadtree.clear();
 	Collision collision = {};
 	switch (scheme) {
 	case STATIC_GRID_SEQ: {
@@ -108,12 +117,8 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 		resolver.launchKernel(10);
 	}
 		break;
-	case QUADTREE_SEQ: {
-		auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
-		quadtree.reserve(10000000);
-		for (auto& collider : *colliders) {
-		    quadtree.insert(&collider);
-		}
+	case QUADTREE_SEQ: { 
+		updateQuadtree();
 		logPrintThreads(1);
 
 		auto cells = quadtree.getCells();
@@ -133,11 +138,19 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	}
 		break;
 	case QUADTREE_CUDA: {
-		auto colliders = Game::getInstance().getCurrentScene()->getComponents<BoxCollider>();
-		quadtree.reserve(10000000);
-		for (auto& collider : *colliders) {
-		    quadtree.insert(&collider);
-		}
+		updateQuadtree();
+		logPrintThreads(quadtree.getCells()->size());
+		CudaResolve resolver(quadtree.getCells());
+		resolver.flattenCopyToDevice();
+		resolver.launchKernel(10);
+	}
+		break;
+	case QUADTREE_CUDA_SEMI_STATIC: {
+		frameCounter.countFrame();
+		if(frameCounter.getFrameCount() >= FRAMES_PER_GRID_UPDATE) {
+			updateQuadtree();
+			frameCounter.resetCounter();
+		} 
 		logPrintThreads(quadtree.getCells()->size());
 		CudaResolve resolver(quadtree.getCells());
 		resolver.flattenCopyToDevice();
@@ -145,7 +158,7 @@ void SimpleECS::ColliderSystem::invokeCollisions()
 	}
 		break;
 	}
-	visualizeCells();
+	// visualizeCells();
 }
 
 void SimpleECS::ColliderSystem::visualizeCells() {
