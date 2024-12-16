@@ -15,7 +15,7 @@ using namespace std;
 using namespace SimpleECS;
 
 // Run parameters
-const bool RENDER_WINDOW = true;
+const bool RENDER_WINDOW = false;
 
 // Environment parameters
 const int SCREEN_HEIGHT		= 720;
@@ -31,7 +31,7 @@ const int NUM_CONTAINER_BALLS = 1500;
 const int NUM_BALLS			= 200;
 const int MAX_SPEED			= 50;
 const int MIN_SPEED			= 20;
-const double SIDE_LENGTH	= 2.5;
+const double SIDE_LENGTH	= 3;
 const int RAND_SEED			= 42;
 
 
@@ -156,7 +156,7 @@ Entity* createTimeCounter()
 Entity* createBall(const int& x, const int &y)
 {
 	Entity* newBall = mainScene->createEntity("ball");
-	newBall->addComponent<RectangleRenderer>(SIDE_LENGTH, SIDE_LENGTH, Color(102, 102, 102, 102));
+	newBall->addComponent<RectangleRenderer>(SIDE_LENGTH, SIDE_LENGTH, Color(165, 248, 255, 102));
 	newBall->addComponent<BoxCollider>(SIDE_LENGTH, SIDE_LENGTH);
 
 	// Set position

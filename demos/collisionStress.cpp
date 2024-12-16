@@ -24,7 +24,7 @@ const int WALL_THICKNESS	= 100;
 const int WALL_INSET = 20;
 
 // Ball parameters
-const int NUM_BALLS		= 60;
+const int NUM_BALLS		= 1700;
 const int MAX_SPEED		= 5;
 const int MIN_SPEED		= 2;
 const int SIDE_LENGTH	= 3;
@@ -152,7 +152,7 @@ Entity* createTimeCounter()
 Entity* createBall(const int& x, const int &y)
 {
 	Entity* newBall = mainScene->createEntity("ball");
-	newBall->addComponent<RectangleRenderer>(SIDE_LENGTH, SIDE_LENGTH, Color(102, 102, 102, 102));
+	newBall->addComponent<RectangleRenderer>(SIDE_LENGTH, SIDE_LENGTH, Color(165, 248, 255, 255));
 	newBall->addComponent<BoxCollider>(SIDE_LENGTH, SIDE_LENGTH);
 
 	// Set position
