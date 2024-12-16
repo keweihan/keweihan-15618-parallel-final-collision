@@ -4,8 +4,8 @@
 **URL**: https://keweihan.github.io/keweihan-15618-parallel-final-collision/
 
 # Final Report (12/15/24)
-[Final Poster](./Final_Poster.pdf)
-[Final Poster](./Final_Report.pdf)
+- [Final Report](./Final_Report.pdf)
+- [Final Poster](./Final_Poster.pdf)
 
 # Milestone Report (12/3/24)
 In order to parallelize our workload, we decided to modify our schedule. Instead of working on fixed-grid cells and then on quadtree, we decided to split work both are worked on at the same time. As a result we have an updated schedule found at the bottom of the report and our progress thus far may differ from the original schedule. 
